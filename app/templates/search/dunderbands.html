@@ -1,0 +1,47 @@
+{% extends "search/master.html" %}
+
+{% block content %}
+    <header class="masthead" style="background-image:url({{ url_for('static', filename = 'search/img/dunderbands.png') }})">
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="page-heading">
+              <h1></h1>
+				<h3></h3>
+            	<span class="subheading"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+</header>
+<p>DunderBands is still in development.<br/>
+<br/>
+	DunderBands was created to find full length albums from lesser known bands
+	that are considered masterpieces among their fans.
+</p>
+<br/><br/>
+<form action="{{ url_for('search.found_album') }}" method="POST">
+	<div class="slidecontainer">
+		<input placeholder="Default: Random" type="text" name="dunderSearch" value="random_genre">
+	 	<input placeholder="Default: 2017" type="text" name="publishedAfter"/>
+		<input placeholder="Default: 2018" type="text" name="publishedBefore"/>
+    	<input type="submit" value="Hunt">
+		<br/><br/><p>Sliding towards the left increases rarity by lowering the ammount of listens and requiring more positive comments.  Sliding towards the right allows for a larger fan base while lowering the amount of positive comments needed. </p>
+		<input type="range" min="9" max="100" value="50" class="slider" name="myRange"/>
+		<h1>Rarity Slider</h1>
+		</div>
+</form>
+
+<form action="{{ url_for('search.random') }}" method="POST">
+	<div class="slidecontainer">
+		<input placeholder="- 2016 -" type="text" name="publishedAfter"/>
+		<input placeholder="- 2018 -" type="text" name="publishedBefore"/>
+    	<input type="submit" value="Random Genre Search">
+		<br/>
+		<input type="range" min="9" max="100" value="50" class="slider" name="currentRareValue"/>
+		<br/><br>
+		
+	</div>
+</form>
+{% endblock %}
