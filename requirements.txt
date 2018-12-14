@@ -1,4 +1,4 @@
-Flask==0.12.2
+Flask>=0.12.3
 flask-heroku==0.1.9
 Flask-Login==0.4.1
 Flask-Mail==0.9.1
@@ -22,12 +22,12 @@ PyInstaller==3.3.1
 PyJWT==1.6.1
 pytz==2018.3
 redis==2.10.6
-requests==2.18.4
+requests>=2.20.0
 rsa==3.4.2
 six==1.11.0
 SQLAlchemy==1.2.5
 uritemplate==3.0.0
-urllib3==1.22
+urllib3>=1.23
 vine==1.1.4
 Werkzeug==0.14.1
 WTForms==2.1
