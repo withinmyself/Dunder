@@ -23,7 +23,7 @@
 <br/><br/>
 <form action="{{ url_for('search.found_album') }}" method="POST">
 	<div class="slidecontainer">
-		<input placeholder="Default: Random" type="text" name="dunderSearch" value="random_genre">
+		<input placeholder="Default: Random" type="text" name="dunderSearch" value="{{ dunderRandom }}"><br/>
 	 	<input placeholder="Default: 2017" type="text" name="publishedAfter"/>
 		<input placeholder="Default: 2018" type="text" name="publishedBefore"/>
     	<input type="submit" value="Hunt">

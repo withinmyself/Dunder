@@ -13,7 +13,9 @@ search = Blueprint('search', __name__, url_prefix='/search')
 # Main search page
 @search.route('/', methods=['GET', 'POST'])
 def dunderbands():
-    return render_template('search/dunderbands.html')
+    dunderRandom = random_genre()
+    return render_template('search/dunderbands.html',
+                           dunderRandom=dunderRandom)
 
 # After search finds
 @search.route('/found_album/', methods=['POST'])
@@ -52,7 +54,7 @@ def keep_searching():
     publishedBefore = request.form['publishedBefore']
     publishedAfter = request.form['publishedAfter']
     currentRareValue = request.form['currentRareValue']
-    
+
     currentBand = criteria_crunch (dunderSearch=dunderSearch,
                                    value=currentRareValue,
                                    nextToken=nextToken,
