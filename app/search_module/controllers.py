@@ -11,7 +11,7 @@ search = Blueprint('search', __name__, url_prefix='/search')
 # Routes for our search engine
 
 # Main search page
-@search.route('/dunderbands/', methods=['GET', 'POST'])
+@search.route('/', methods=['GET', 'POST'])
 def dunderbands():
     return render_template('search/dunderbands.html')
 
@@ -32,8 +32,7 @@ def found_album():
                                    value=sliderRange,
                                    nextToken=nextToken,
                                    publishedBefore=publishedBefore,
-                                   publishedAfter=publishedAfter)
-
+                                   publishedAfter=publishedAfter) 
     return render_template ('search/found_album.html',
                             videoId=currentBand.videoId,
                             nextToken = currentBand.nextToken,
