@@ -3,8 +3,8 @@ from flask import Blueprint, request, render_template, \
 
 from app import db
 from app.search_module.models import Albums
-from app.search_module.search_functions import criteria_crunch, string_clean
-from app.search_module.get_random import random_genre
+from app.search_module.search_functions import criteria_crunch, \
+     string_clean, random_genre
 
 search = Blueprint('search', __name__, url_prefix='/search')
 

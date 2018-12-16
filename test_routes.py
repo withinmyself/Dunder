@@ -4,7 +4,8 @@ import unittest
 from app import app, db
 from app.search_module.search_functions import year_selecter, \
      criteria_alter, search_getter, stat_checker, comment_counter, \
-     criteria_crunch, title_clean, string_clean, ArgumentsMissing
+     criteria_crunch, title_clean, string_clean, ArgumentsMissing, \
+     random_genre
 
 TEST_DB = 'test.db'
 
@@ -115,13 +116,16 @@ class BasicTests(unittest.TestCase):
     def test_string_clean_lower_upper_string(self):
         response = string_clean('TeStInG OuT')
         self.assertRaises(ArgumentsMissing, response)
+
+    def test_random_genre(self):
+        response = random_genre()
+        self.assertTrue(isinstance(response, str))
+
+
+
+
 # Helpers
 
-    def found(self, test_func='True', dunderSearch='Post Black Metal',
-              sliderRange=50, nextToken='None'):
-        return self.app.post('/search/found_album', data=dict(test_func=test_func,
-                             dunderSearch=dunderSearch, sliderRange=sliderRange,
-                             nextToken=None), follow_redirects=True)
 
 if __name__ == "__main__":
     unittest.main()

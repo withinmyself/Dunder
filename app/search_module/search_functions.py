@@ -1,12 +1,15 @@
 import redis
 import re
 import datetime
+import random
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 
 from app.search_module.models import Albums
+from app.search_module.strings import noWords, genrePrefix, \
+     genreMain, countryOfOrigin
 from app import db
 
 redis_server = redis.Redis(host='127.0.0.1', port='6379')
@@ -281,26 +284,8 @@ def title_clean (tubeTitle,
         print("TITLE_CLEAN")
 
     titleList = re.sub(r'[.!,;?]', ' ', tubeTitle).lower().split()
-    noWords = ('{}'.format(includeSearch),'{}'.format(includeBand),
-               'best','for','list', 'top','overall','show','all time','greatest',
-               'number', 'vol', 'compilation', 'volume', 'mix', 'part',
-               'all-time', 'aniversary', 'promo', 'disco',
-               'relaxing', 'soothing', 'playlist',
-               'recordings', 'live', 'aniversary',
-               'guest', 'popular', 'talented',
-               'vocals', 'mixing', 'recording',
-               'rock', 'metal', 'documentary',
-               'extreme', 'mixtape', 'mix)', '(',
-               ')', '90s', '80s', '70s', '60s', '50s',
-               'band', 'debate', 'blackgaze',
-               'tutorial','guide', 'year','level',
-               'workshop', 'design', 'food', 'tour',
-               'classics', 'modern', 'hours', 'minutes',
-               'piano', 'explained', 'theories', 'endings',
-               'improvise', 'solo', 'freestyle', 'saxaphone',
-               'session', 'sessions', 'what', '#podsessions',
-               'podcast',)
-
+    noWords.append("{0}".format(includeSearch))
+    noWords.append("{0}".format(includeBand))
     for word in titleList:
         for noWord in noWords:
             if noWord == word:
@@ -335,5 +320,15 @@ def string_clean(dirtyText, listOrString=None):
     pass
 
 
+# Return a string with 1 random genre, 1 random sub-genre and 1 random country
+def random_genre (genrePrefix=genrePrefix, genreMain=genreMain,
+                               countryOfOrigin=countryOfOrigin):
+
+    randomPrefix = random.choice(genrePrefix)
+    randomGenre = random.choice(genreMain)
+    randomCountry = random.choice(countryOfOrigin)
+    return (str('{}'.format(randomPrefix)) + ' ' +
+            str('{}'.format(randomGenre)) +  ' ' +
+            str('{}'.format(randomCountry)))
 
 
