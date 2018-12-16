@@ -1,88 +1,82 @@
-
+import redis
 import re
 import datetime
+import random
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 
 from app.search_module.models import Albums
+from app.search_module.strings import noWords, genrePrefix, \
+     genreMain, countryOfOrigin
 from app import db
 
+redis_server = redis.Redis(host='127.0.0.1', port='6379')
+DEVELOPER_KEY = redis_server.get('DEVELOPER_KEY').decode('utf-8')
 
-
-
-DEVELOPER_KEY = "AIzaSyBQEcuLzY9DirijZ_Vx9QCKMstDvl8Zi6Y"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 YOUTUBE = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                     developerKey=DEVELOPER_KEY)
 
-MAX_VIEWS = 15000
-LIKE_RATIO = 0.015
-VIEW_RATIO = 0.035
-MIN_COUNT = 2
-DEBUG = False
+DEBUG = True
 SEE_TITLES = False
 
+
 class ArgumentsMissing(Exception):
-    """
-    Custom exception for 
-    missing arguments.
-    """
+# Custom exception missing arguments.
+
     def __init__(self, code):
         self.code = code
     def __str__(self):
         return repr(self.code)
 
 def year_selecter(year):
-    """
-    Take four digit year. 
-    Return RFC3339 datetime object.
-    """
+# Take four digit year. Return RFC3339 datetime object.
+
     yearConverted = datetime.datetime(int(year),12,30).isoformat()+'Z'
     return yearConverted
 
 
 def criteria_alter(value):
-    """
-    Takes value from the slider
-    on the main page and adjusts
-    our criteria.
-    """
+# Takes value from the slider to adjust criteria.
+
     if DEBUG == True:
-        print("TUBEYOUSEARCH.PY - LINE59 - CRITERIA_ALTER")  
-    global MAX_VIEWS
-    global LIKE_RATIO
-    global MIN_COUNT
+        print("CRITERIA_ALTER")
 
-    MAX_VIEWS = int(value) * 300
-    LIKE_RATIO = float(value) * 0.0007
+    int_value = int(value)
+    float_value = float(int_value)
 
-    if int(value) <= 10:
+    if int_value != 50:
+        redis_server.set('LIKE_RATIO', float_value * 0.0007)
+        MAX_VIEWS = int_value * 300
+    else:
+        MAX_VIEWS = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+
+    LIKE_RATIO = redis_server.get('LIKE_RATIO').decode('utf-8')
+    if int_value <= 15:
         MIN_COUNT = 3
-    if int(value) > 10 and int(value) <= 40:
+    if int_value > 15 and int_value <= 60:
         MIN_COUNT = 2
-    if int(value) > 40 and (value) <= 70:
+    if int_value > 60 and int_value <= 85:
         MIN_COUNT = 1
-    if int(value) > 70:
+    if int_value > 85:
         MIN_COUNT = 0
     if DEBUG == True:
-        print("MAX_VIEWS = {0}, LIKE_RATIO = {1}, MIN_COUNT = {2}".format(MAX_VIEWS, LIKE_RATIO, MIN_COUNT))
+        print("MAX_VIEWS = {0}, LIKE_RATIO = {1}, MIN_COUNT = {2}, SLIDER: {3}".format(
+                                        MAX_VIEWS, LIKE_RATIO, MIN_COUNT, value))
 
+    return "MaxViews: {0} | LikeRatio: {1} | MinCount: {2}".format(MAX_VIEWS, LIKE_RATIO, MIN_COUNT)
 
 def search_getter(q, max_results=1, token=None, location=None,
-               location_radius=None, related_video=None,
-               published_before=None, published_after=None):
-    """
-    Main API interaction to YouTube.
-    Returns only one video per search
-    in order to sort with our
-    custom criteria.
-    """
+                  location_radius=None, related_video=None,
+                  published_before=None, published_after=None):
+# Main API interaction to YouTube.
+
     if DEBUG == True:
-        print("TUBEYOUSEARCH.PY - LINE89 - SEARCH_GETTER")
+        print("SEARCH_GETTER")
 
     resultsSearch = YOUTUBE.search().list(
         q=q,
@@ -106,17 +100,15 @@ def search_getter(q, max_results=1, token=None, location=None,
 
 
 def stat_checker (videoId):
-    """
-    Pull stats to compare against
-    our adjustable ratio variables.
-    Check for ZeroDivisionError
-    and KeyError in search results.
-    """
+# Pull stats to compare against.
+
+    LIKE_RATIO=float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
+    VIEW_RATIO=float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+    MAX_VIEWS=int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+
     if DEBUG == True:
-        print("TUBEYOUSEARCH.PY - LINE120 - STAT_CHECKER")
-    stats = YOUTUBE.videos().list(
-                                  id=videoId,
-                                  part='snippet, recordingDetails, statistics'
+        print("STAT_CHECKER")
+    stats = YOUTUBE.videos().list(id=videoId, part='snippet, recordingDetails, statistics'
                                   ).execute()
 
     try:
@@ -132,8 +124,7 @@ def stat_checker (videoId):
 
 
     try:
-        if (
-            float(dislikeCount) / float(totalVotes) <= LIKE_RATIO and
+        if (float(dislikeCount) / float(totalVotes) <= LIKE_RATIO and
             float(totalVotes) / float(viewCount) >= VIEW_RATIO and
             int(viewCount) <= int(MAX_VIEWS) and
             int(commentCount) != 0 and
@@ -149,29 +140,24 @@ def stat_checker (videoId):
 
 
 def comment_counter (videoId):
-    """
-    Uses the videoID to
-    retrieve top 100 comments.
-    After 'cleaning' the results,
-    we try to find words from our 
-    list of desirable descriptives.
-    """    
+# Uses the videoID to retrieve top 100 comments.
+# After 'cleaning' the results, we try to find words
+# from our list of desirable descriptives.
+
+    MIN_COUNT = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
     if DEBUG == True:
-        print("TUBEYOUSEARCH.PY - LINE163 - COMMENT_COUNTER")
+        print("COMMENT_COUNTER")
 
     wordsFound = 0
-    wordsToFind = (
-                   'amazing', 'speechless', 'fantastic',
+    wordsToFind = ('amazing', 'speechless', 'fantastic',
                    'incredible', 'masterpiece', 'breathtaking',
-                   'transcendental'
-                   )
+                   'transcendental')
 
-    comments = YOUTUBE.commentThreads().list (
-                                               part="snippet",
-                                               maxResults=100,
-                                               videoId=videoId,
-                                               textFormat="plainText"
-                                               ).execute()
+    comments = YOUTUBE.commentThreads().list (part="snippet",
+                                              maxResults=100,
+                                              videoId=videoId,
+                                              textFormat="plainText"
+                                              ).execute()
     try:
         for item in comments["items"]:
             comment = item["snippet"]["topLevelComment"]
@@ -199,24 +185,20 @@ def comment_counter (videoId):
             return False
 
     except KeyError:
-        print("KeyError, Comments Are Disabled")
+        print("KeyError - Comments Are Disabled")
         return False
     pass
 
 
 
-def criteria_crunch (
-                     dunderSearch, value=50,
-                     nextToken=None, dunderAnchor=None,
-                     publishedBefore=None, publishedAfter=None
-                     ):
-    """
-    The majority of our logic 
-    operators, error checking,
-    and YouTube search results.
-    """    
+def criteria_crunch (dunderSearch, value=50, nextToken=None,
+                     dunderAnchor=None, publishedBefore=None,
+                     publishedAfter=None):
+# The majority of our logic operators, error checking,
+# and YouTube search results.
+
     if DEBUG == True:
-        print("TUBEYOUSEARCH.PY - LINE217 - CRITERIA_CRUNCH")   
+        print("CRITERIA_CRUNCH")
     if publishedBefore != None:
         try:
             publishedBefore = year_selecter(year=publishedBefore)
@@ -229,26 +211,19 @@ def criteria_crunch (
             publishedAfter = year_selecter(year=publishedAfter)
         except ValueError:
             print("Missing Year For Published After.  Allowing Default.")
-            publishedAfter = year_selecter(year=2016)        
-
-    try:
-        criteria_alter(int(value))
-    except (TypeError, ValueError) as e:
-        print("Failed Inside criteria_alter().  {0!r}".format(e))
-        pass
+            publishedAfter = year_selecter(year=2016)
+    criteria_alter(value)
 
     while True:
 
         if SEE_TITLES == True:
             print("Beat", MAX_VIEWS, MIN_COUNT, VIEW_RATIO, LIKE_RATIO)
 
-        searchResults = search_getter ( 
-                                       dunderSearch, 
+        searchResults = search_getter (dunderSearch,
                                        token=nextToken,
                                        related_video=dunderAnchor,
                                        published_before=publishedBefore,
-                                       published_after=publishedAfter
-                                       )
+                                       published_after=publishedAfter)
 
         try:
             nextToken = searchResults['nextPageToken']
@@ -264,29 +239,25 @@ def criteria_crunch (
 
         for video in searchResults.get("items", []):
             try:
-                if ( 
-                    video['id']['kind'] == "youtube#video" and
-                    title_clean(video['snippet']['title'], includeSearch=dunderSearch) == True
-                    ):
+                if (video['id']['kind'] == "youtube#video" and
+                    title_clean(video['snippet']['title'], includeSearch=dunderSearch) == True):
+
                     videoId = video['id']['videoId']
                     videoTitle = video['snippet']['title']
 
                     if SEE_TITLES == True:
                         print(videoTitle)
 
-                    if (
-                        db.session.query(Albums).filter_by(videoId=videoId).first() == None and
+                    if (db.session.query(Albums).filter_by(videoId=videoId).first() == None and
                         stat_checker(videoId=videoId) == True and
-                        comment_counter(videoId=videoId) != False
-                        ):
-                        currentBand = Albums (
-                                              videoId=videoId,
+                        comment_counter(videoId=videoId) != False):
+
+                        currentBand = Albums (videoId=videoId,
                                               nextToken=nextToken,
                                               genre=dunderSearch.upper(),
                                               videoTitle=videoTitle,
                                               topComment=comment_counter(videoId=videoId),
-                                              isFavorite=''
-                                              )
+                                              isFavorite='')
                         db.session.add(currentBand)
                         db.session.commit()
                         return currentBand
@@ -296,50 +267,25 @@ def criteria_crunch (
                 else:
                     pass
             except HttpError:
-                print("HttpError, Comments Disables")
+                print("HttpError, Comments are disabled")
                 pass
 
     pass
 
 
-def title_clean (
-                 tubeTitle,
+def title_clean (tubeTitle,
                  includeSearch='search',
-                 includeBand='band'
-                 ):
-    """
-    Takes current video title
-    and checks against our list 
-    of no words.  This is to avoid
-    'mix' videos, compilations and
-    'best of' lists.
-    """
+                 includeBand='band'):
+# Takes current video title and checks against our list
+# of no words.  This is to avoid 'mix' videos,
+# compilations and 'best of' lists.
+
     if DEBUG == True:
-        print("TUBEYOUSEARCH.PY - LINE310 - TITLE_CLEAN")
+        print("TITLE_CLEAN")
 
     titleList = re.sub(r'[.!,;?]', ' ', tubeTitle).lower().split()
-    noWords = (
-               '{}'.format(includeSearch),'{}'.format(includeBand),
-               'best','for','list', 'top','overall','show','all time','greatest',
-               'number', 'vol', 'compilation', 'volume', 'mix', 'part',
-               'all-time', 'aniversary', 'promo', 'disco',
-               'relaxing', 'soothing', 'playlist',
-               'recordings', 'live', 'aniversary',
-               'guest', 'popular', 'talented',
-               'vocals', 'mixing', 'recording',
-               'rock', 'metal', 'documentary',
-               'extreme', 'mixtape', 'mix)', '(',
-               ')', '90s', '80s', '70s', '60s', '50s',
-               'band', 'debate', 'blackgaze',
-               'tutorial','guide', 'year','level',
-               'workshop', 'design', 'food', 'tour',
-               'classics', 'modern', 'hours', 'minutes',
-               'piano', 'explained', 'theories', 'endings',
-               'improvise', 'solo', 'freestyle', 'saxaphone',
-               'session', 'sessions', 'what', '#podsessions',
-               'podcast',
-               )
-
+    noWords.append("{0}".format(includeSearch))
+    noWords.append("{0}".format(includeBand))
     for word in titleList:
         for noWord in noWords:
             if noWord == word:
@@ -348,13 +294,11 @@ def title_clean (
 
 
 def string_clean(dirtyText, listOrString=None):
-    """
-    Takes a string and returns
-    either a list or a string, upper or
-    lower without punctuation marks
-    """
+# Takes a string and returns either a list or a string
+# upper or lower without punctuation marks
+
     if DEBUG == True:
-        print("TUBEYOUSEARCH.PY - LINE332 - STRING_CLEAN")
+        print("STRING_CLEAN")
     try:
         if listOrString == 'listNeededLower':
             return re.sub(r'[.!,;?]', ' ', dirtyText).lower().split()
@@ -376,5 +320,15 @@ def string_clean(dirtyText, listOrString=None):
     pass
 
 
+# Return a string with 1 random genre, 1 random sub-genre and 1 random country
+def random_genre (genrePrefix=genrePrefix, genreMain=genreMain,
+                               countryOfOrigin=countryOfOrigin):
+
+    randomPrefix = random.choice(genrePrefix)
+    randomGenre = random.choice(genreMain)
+    randomCountry = random.choice(countryOfOrigin)
+    return (str('{}'.format(randomPrefix)) + ' ' +
+            str('{}'.format(randomGenre)) +  ' ' +
+            str('{}'.format(randomCountry)))
 
 

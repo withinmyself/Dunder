@@ -3,17 +3,19 @@ from flask import Blueprint, request, render_template, \
 
 from app import db
 from app.search_module.models import Albums
-from app.search_module.search_functions import criteria_crunch, string_clean
-from app.search_module.get_random import random_genre
+from app.search_module.search_functions import criteria_crunch, \
+     string_clean, random_genre
 
 search = Blueprint('search', __name__, url_prefix='/search')
 
 # Routes for our search engine
 
 # Main search page
-@search.route('/dunderbands/', methods=['GET', 'POST'])
+@search.route('/', methods=['GET', 'POST'])
 def dunderbands():
-    return render_template('search/dunderbands.html')
+    dunderRandom = random_genre()
+    return render_template('search/dunderbands.html',
+                           dunderRandom=dunderRandom)
 
 # After search finds
 @search.route('/found_album/', methods=['POST'])
@@ -32,8 +34,7 @@ def found_album():
                                    value=sliderRange,
                                    nextToken=nextToken,
                                    publishedBefore=publishedBefore,
-                                   publishedAfter=publishedAfter)
-
+                                   publishedAfter=publishedAfter) 
     return render_template ('search/found_album.html',
                             videoId=currentBand.videoId,
                             nextToken = currentBand.nextToken,
@@ -53,7 +54,7 @@ def keep_searching():
     publishedBefore = request.form['publishedBefore']
     publishedAfter = request.form['publishedAfter']
     currentRareValue = request.form['currentRareValue']
-    
+
     currentBand = criteria_crunch (dunderSearch=dunderSearch,
                                    value=currentRareValue,
                                    nextToken=nextToken,
