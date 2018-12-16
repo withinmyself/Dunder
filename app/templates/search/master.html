@@ -5,8 +5,8 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="Master for DunderBands">
+    <meta name="author" content="Evan Troy Deubner">
 
     <link rel="apple-touch-icon" sizes="57x57" href="{{ url_for('static', filename='img/apple-icon-57x57.png') }}">
     <link rel="apple-touch-icon" sizes="60x60" href="{{ url_for('static', filename='img/apple-icon-60x60.png') }}">
@@ -22,22 +22,22 @@
     <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='img/favicon-96x96.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='img/favicon-16x16.png') }}">
 
-    <title>{{ titlehtml }}</title>
+    <title>DunderBands</title>
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='search/vendor/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
 
     <!-- Custom fonts for this template -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='search/vendor/font-awesome/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/font-awesome/css/font-awesome.min.css') }}">
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 	 <link href="https://fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='search/css/clean-blog.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/clean-blog.css') }}">
 	  <style>
 		  body {
-			 background-image: url({{ url_for('static', filename='search/img/background.png') }});
+			 background-image: url({{ url_for('static', filename='img/background.png') }});
 		  }
 		p {
 
@@ -71,13 +71,13 @@
       </div>
     </nav>
 	</head>
-	    <!-- Page Header -->
 
 		<div class="container">
 			{% block content %}
 			{% endblock %}
-		</div>
-		    <!-- Footer -->
+    </div>
+
+	  <!-- Footer -->
     <footer>
       <div class="container">
         <div class="row">
@@ -100,8 +100,8 @@
                   </span>
                 </a>
               </li>
-            </ul><br>
-            <h4 class="copyright text-muted">Copyright &copy; Evan T. Deubner 2018</h4>
+            </ul><br/>
+            <h4 class="copyright text-muted">Copyright &copy; Evan Troy Deubner 2018</h4>
           </div>
         </div>
       </div>

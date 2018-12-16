@@ -44,9 +44,17 @@ body {
 }
 
 p {
-	font-family: 'Josefin Sans', sans-serif;
-  line-height: 1.5;
-  margin: 30px 0;
+
+  font-family: 'Josefin Sans' sans-serif;
+  text-align: center;
+  padding-left: 5px;
+  padding-right: 5px;
+  color:whitesmoke;
+  background-color: darkslategrey;
+  border-top: 3px solid darkred;
+  border-right: 3px solid darkred;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
 }
 
 p a {
@@ -189,7 +197,7 @@ img::-moz-selection {
     transition: transform 0.2s;
     border-bottom: 1px solid white;
     background-color:darkslategray;
-	
+
   }
   #mainNav.is-fixed .navbar-brand {
     color: #212529;
@@ -217,7 +225,7 @@ header.masthead {
   margin-bottom: 50px;
   width: 100%;
   background: no-repeat center center;
- 
+
   background-attachment: scroll;
   position: relative;
   -webkit-background-size: cover;
