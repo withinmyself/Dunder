@@ -1,5 +1,7 @@
 from app import db, redis_server
 from app.settings_module.models import Ignore, Favorites
+from flask import flash
+
 
 def change_like_ratio(ratio):
     float_ratio = float(ratio)
@@ -40,10 +42,13 @@ def get_favorites():
 
 def add_favorite(videoId, videoTitle='Not Given'):
     str_videoId = str(videoId)
-    favorite = Favorites(str_videoId, videoTitle)
-    db.session.add(favorite)
-    db.session.commit()
-    db.session.close()
+    if db.session.query(Favorites).filter_by(videoId=str_videoId) != None:
+        flash("Album is already in your favorites")
+    else:
+        favorite = Favorites(str_videoId, videoTitle)
+        db.session.add(favorite)
+        db.session.commit()
+        db.session.close()
 
 
 def delete_favorite(videoId):

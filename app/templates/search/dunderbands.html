@@ -1,42 +1,54 @@
 {% extends "search/master.html" %}
 
 {% block content %}
-    <header class="masthead" style="background-image:url({{ url_for('static', filename = 'img/dunderbands.png') }})">
-      <div class="overlay"></div>
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-8 col-md-10 mx-auto">
-            <div class="page-heading">
-              <h1></h1>
-				<h3></h3>
-            	<span class="subheading"></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-    <p>DunderBands is still in development.<br/><br/>
-       Find full length albums from lesser known bands
-	     that are considered masterpieces among their fans.
-    </p><br/><br/>
-    <form action="{{ url_for('search.found_album') }}" method="POST">
-    	<div class="slidecontainer">
-    		<input placeholder="Default: Random" type="text" name="dunderSearch" value="{{ dunderRandom }}"><br/>
-    	 	<input placeholder="Default: 2017" type="text" name="publishedAfter"/>
-    		<input placeholder="Default: 2018" type="text" name="publishedBefore"/>
-        	<input type="submit" value="Hunt">
-    		<br/><br/><p>Sliding towards the left increases rarity by lowering the ammount of listens and requiring more positive comments.  Sliding towards the right allows for a larger fan base while lowering the amount of positive comments needed. </p>
-    		<input type="range" min="9" max="100" value="50" class="slider" name="myRange"/>
-    		<h1>Rarity Slider</h1>
-    		</div>
-    </form>
 
-    <form action="{{ url_for('search.random') }}" method="POST">
-	     <div class="slidecontainer">
-		       <input placeholder="- 2016 -" type="text" name="publishedAfter"/>
-		       <input placeholder="- 2018 -" type="text" name="publishedBefore"/>
-    	     <input type="submit" value="Random Genre Search"><br/>
-		       <input type="range" min="9" max="100" value="50" class="slider" name="currentRareValue"/><br/><br>
-	     </div>
-     </form>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+{% block body %}{% endblock %}
+
+  <div class="topgrid">
+<div class="grid-item item-1">test</div>
+<div class="grid-item item-2"><img src="{{ url_for('static', filename = 'img/dunderbands.png') }}"></div>
+<div class="grid-item item-3">3</div>
+<div class="grid-item item-3">4</div>
+<div class="grid-item item-4">
+<form action="{{ url_for('search.dunderbands') }}" method="POST">
+  <input type="hidden" name="nextToken" value="None" />
+  <div class="search">
+    <input placeholder="Dunder Search" type="text"   id="search" style ="background:#818181; color:#683755" name="dunderSearch" value="{{ dunderRandom }}">
+  </div>
+  <div class="year">
+    <input placeholder="Default: 2017" type="text"  id="after" style ="background:#818181; color:#683755" name="publishedAfter"/>
+    <input placeholder="Default: 2018" type="text"  id="before" style ="background:#818181; color:#683755"name="publishedBefore"/>
+    </div>
+    <div class="hunt">
+      <input type="submit" value="Hunt" id="hunt" style ="background:#818181; color:#683755"/>
+      </div>
+  </form>
+</div>
+<div class="grid-item item-5">6</div>
+<div class="grid-item item-6">7</div>
+<div class="grid-item item-6">8</div>
+</div>
+
+    </div>
+  <div class="row">
+    <div class="col-lg-12 text-center">
+      <h1 class="mt-5">A Bootstrap 4 Starter Tyepemplate</h1>
+      <p class="lead">Complete with pre-defined file paths and responsive navigation!</p>
+      <ul class="list-unstyled">
+        <li>Bootstrap 4.1.3</li>
+        <li>jQuery 3.3.1</li>
+      </ul>
+    </div>
+  </div>
+
+
 {% endblock %}

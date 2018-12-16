@@ -227,14 +227,15 @@ def criteria_crunch (dunderSearch, value=50, nextToken=None,
         try:
             nextToken = searchResults['nextPageToken']
         except KeyError:
-            print("KeyError. Last Page. Adjusting Criteria")
+            print("KeyError with nextToken - breaking loop")
+            break
+            return False
             # If we reach the last page using current criteria
             # we reset the page token and set the value
             # to 50 using criteria_alter().
 
             criteria_alter(50)
             nextToken = None
-            pass
 
         for video in searchResults.get("items", []):
             try:
