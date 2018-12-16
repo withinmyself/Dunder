@@ -1,0 +1,47 @@
+/*!
+ * All custom css resides here
+ * Copyright Evan Troy Deubner 2018
+ * Licenced under GNU (https://github.com/withinmyself/Dunder/blob/master/LICENSE)
+ */
+
+
+ /*!
+  * Text input and search buttons
+  */
+.search input {
+  height: 40px;
+  width: 600px;
+  text-align:center;
+}
+
+.year input {
+  height: 40px;
+  width: 298px;
+  text-align:center;
+}
+
+.hunt input {
+  heith: 70px;
+  width: 600px;
+  justify-content: center;
+}
+
+/*!
+ * Grid main and grid items
+ */
+.topgrid img{
+  height:auto;
+  width:600px;
+}
+
+.topgrid {
+   display: grid;
+   grid-template-columns: [start1] 25% [end1 start2] 50% [end2 start3] 25% [end3];
+   grid-template-rows: auto;
+   justify-items: center;
+   justify-content: center;
+ }
+
+/*!
+ * Hover events
+ */

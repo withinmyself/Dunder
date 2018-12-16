@@ -6,32 +6,28 @@ from app.search_module.models import Albums
 from app.search_module.search_functions import criteria_crunch, \
      string_clean, random_genre
 
-search = Blueprint('search', __name__, url_prefix='/search')
+search_blueprint = Blueprint('search', __name__, url_prefix='/search')
 
 # Routes for our search engine
 
 # Main search page
-@search.route('/', methods=['GET', 'POST'])
+@search_blueprint.route('/', methods=['GET', 'POST'])
 def dunderbands():
     dunderRandom = random_genre()
     return render_template('search/dunderbands.html',
                            dunderRandom=dunderRandom)
 
 # After search finds
-@search.route('/found_album/', methods=['POST'])
+@search_blueprint.route('/found_album/', methods=['POST'])
 def found_album():
-    sliderRange = request.form['myRange']
     dunderRequest = request.form['dunderSearch']
-    if dunderRequest == 'random_genre':
-        dunderSearch = random_genre()
-    else:
-        dunderSearch = string_clean(dunderRequest, 'stringNeededUpper')
+    dunderSearch = string_clean(dunderRequest, 'stringNeededUpper')
     publishedBefore = request.form['publishedBefore']
     publishedAfter = request.form['publishedAfter']
     nextToken = None
 
     currentBand = criteria_crunch (dunderSearch=dunderSearch,
-                                   value=sliderRange,
+                                   value=50,
                                    nextToken=nextToken,
                                    publishedBefore=publishedBefore,
                                    publishedAfter=publishedAfter) 
@@ -47,16 +43,15 @@ def found_album():
                             currentRareValue=sliderRange)
 
 # Keep searching with same user given criteria
-@search.route('/keep_searching/', methods=['POST'])
+@search_blueprint.route('/keep_searching/', methods=['POST'])
 def keep_searching():
     dunderSearch = request.form['genre']
     nextToken = request.form['nextToken']
     publishedBefore = request.form['publishedBefore']
     publishedAfter = request.form['publishedAfter']
-    currentRareValue = request.form['currentRareValue']
 
     currentBand = criteria_crunch (dunderSearch=dunderSearch,
-                                   value=currentRareValue,
+                                   value=50,
                                    nextToken=nextToken,
                                    publishedBefore=publishedBefore,
                                    publishedAfter=publishedAfter)
@@ -69,21 +64,18 @@ def keep_searching():
                             commentPlug=currentBand.topComment,
                             isFavorite=currentBand.isFavorite,
                             publishedBefore=publishedBefore,
-                            publishedAfter=publishedAfter,
-                            currentRareValue=currentRareValue)
+                            publishedAfter=publishedAfter)
 
 # Use random genre generator to search
-@search.route('/random/', methods=['POST'])
+@search_blueprint.route('/random/', methods=['POST'])
 def random():
     dunderSearch = random_genre()
     print(dunderSearch)
     nextToken = None
     publishedBefore = request.form['publishedBefore']
     publishedAfter = request.form['publishedAfter']
-    currentRareValue = request.form['currentRareValue']
-    print(currentRareValue)
     currentBand = criteria_crunch (dunderSearch=dunderSearch,
-                                   value=currentRareValue,
+                                   value=50,
                                    nextToken=nextToken,
                                    publishedBefore=publishedBefore,
                                    publishedAfter=publishedAfter)
@@ -97,21 +89,19 @@ def random():
                             commentPlug=currentBand.topComment,
                             isFavorite=currentBand.isFavorite,
                             publishedBefore=publishedBefore,
-                            publishedAfter=publishedAfter,
-                            currentRareValue=currentRareValue)
+                            publishedAfter=publishedAfter)
 
 # Next search is directly associated with the current found album
-@search.route('/anchor_pivot/', methods=['POST'])
+@search_blueprint.route('/anchor_pivot/', methods=['POST'])
 def anchor_pivot():
     dunderSearch = request.form['genre']
     dunderAnchor = request.form['videoId']
     publishedBefore = request.form['publishedBefore']
     publishedAfter = request.form['publishedAfter']
-    currentRareValue = request.form['currentRareValue']
     nextToken = None
 
     currentBand = criteria_crunch (dunderSearch=dunderSearch,
-                                   value=currentRareValue,
+                                   value=50,
                                    nextToken=nextToken,
                                    dunderAnchor=dunderAnchor,
                                    publishedBefore=publishedBefore,
@@ -125,6 +115,4 @@ def anchor_pivot():
                             commentPlug=currentBand.topComment,
                             isFavorite=currentBand.isFavorite,
                             publishedBefore=publishedBefore,
-                            publishedAfter=publishedAfter,
-                            currentRareValue=currentRareValue)
-
+                            publishedAfter=publishedAfter)

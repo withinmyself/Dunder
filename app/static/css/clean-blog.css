@@ -44,17 +44,9 @@ body {
 }
 
 p {
-
-  font-family: 'Josefin Sans' sans-serif;
-  text-align: center;
-  padding-left: 5px;
-  padding-right: 5px;
-  color:whitesmoke;
-  background-color: darkslategrey;
-  border-top: 3px solid darkred;
-  border-right: 3px solid darkred;
-  border-bottom: 2px solid black;
-  border-left: 2px solid black;
+	font-family: 'Josefin Sans', sans-serif;
+  line-height: 1.5;
+  margin: 30px 0;
 }
 
 p a {
