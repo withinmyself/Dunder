@@ -1,4 +1,6 @@
 
+import redis
+
 from flask import Flask, render_template
 
 from flask_sqlalchemy import SQLAlchemy
@@ -8,6 +10,8 @@ app = Flask(__name__)
 app.config.from_object('config')
 
 db = SQLAlchemy(app)
+
+redis_server = redis.Redis(host='127.0.0.1', port='6379')
 
 
 

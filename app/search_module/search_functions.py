@@ -1,4 +1,3 @@
-import redis
 import re
 import datetime
 import random
@@ -10,9 +9,9 @@ from oauth2client.tools import argparser
 from app.search_module.models import Albums
 from app.search_module.strings import noWords, genrePrefix, \
      genreMain, countryOfOrigin
-from app import db
+from app import db, redis_server
 
-redis_server = redis.Redis(host='127.0.0.1', port='6379')
+
 DEVELOPER_KEY = redis_server.get('DEVELOPER_KEY').decode('utf-8')
 
 YOUTUBE_API_SERVICE_NAME = "youtube"
@@ -330,5 +329,3 @@ def random_genre (genrePrefix=genrePrefix, genreMain=genreMain,
     return (str('{}'.format(randomPrefix)) + ' ' +
             str('{}'.format(randomGenre)) +  ' ' +
             str('{}'.format(randomCountry)))
-
-
