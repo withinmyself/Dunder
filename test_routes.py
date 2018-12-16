@@ -3,16 +3,15 @@ import unittest
 
 from app import app, db
 from app.search_module.search_functions import year_selecter, \
-     criteria_alter, search_getter, stat_checker, comment_counter
+     criteria_alter, search_getter, stat_checker, comment_counter, \
+     criteria_crunch, title_clean, string_clean, ArgumentsMissing
 
 TEST_DB = 'test.db'
 
 
 class BasicTests(unittest.TestCase):
 
-    ############################
-    #### setup and teardown ####
-    ############################
+# Setup and teardown
 
     # executed prior to each test
     def setUp(self):
@@ -63,6 +62,59 @@ class BasicTests(unittest.TestCase):
         response = comment_counter('aAN9rtgt21w')
         self.assertTrue(isinstance(response, str))
 
+    def test_criteria_crunch(self):
+        response = criteria_crunch('Post Black Metal')
+        self.assertTrue(response != None)
+
+    def test_title_clean_true(self):
+        response = title_clean('Pantera Cowboys From Hell')
+        self.assertTrue(response)
+
+    def test_title_clean_false(self):
+        response = title_clean('Pantera All-time Relaxing Greatest Hits')
+        self.assertFalse(response)
+
+    def test_string_clean_lower_list(self):
+        response = string_clean('TesTiNg oUt StrING cLeAn',
+                                listOrString='listNeededLower')
+        testList = isinstance(response, list)
+        testLower = str(response)
+        self.assertTrue(testList and testLower)
+
+
+    def test_string_clean_upper_lower_string(self):
+        response = string_clean('TesTiNg oUt StrING cLeAn',
+                                listOrString='stringNeededLower')
+        self.assertTrue(response.islower() and isinstance(response, str))
+
+    def test_string_clean_lower_upper_list(self):
+        response = string_clean('TesTiNg oUt StrING cLeAn',
+                                listOrString='listNeededUpper')
+        testList = isinstance(response, list)
+        testUpper = str(response).isupper()
+        self.assertTrue(testList and testUpper)
+
+
+    def test_string_clean_lower_upper_string(self):
+        response = string_clean('TesTiNg oUt StrING cLeAn',
+                                listOrString='stringNeededUpper')
+        self.assertTrue(response.isupper() and isinstance(response, str))
+
+
+    def test_string_clean_lower_upper_string(self):
+        response = string_clean('TesTiNg oUt StrING cLeAn',
+                                listOrString='listNeeded')
+        self.assertTrue(isinstance(response, list))
+
+    def test_string_clean_lower_upper_string(self):
+        response = string_clean('TesTiNg oUt StrING cLeAn',
+                                listOrString='stringNeeded')
+        self.assertTrue(isinstance(response, str))
+
+
+    def test_string_clean_lower_upper_string(self):
+        response = string_clean('TeStInG OuT')
+        self.assertRaises(ArgumentsMissing, response)
 # Helpers
 
     def found(self, test_func='True', dunderSearch='Post Black Metal',

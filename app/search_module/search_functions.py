@@ -55,9 +55,9 @@ def criteria_alter(value):
     LIKE_RATIO = redis_server.get('LIKE_RATIO').decode('utf-8')
     if int_value <= 15:
         MIN_COUNT = 3
-    if int_value > 15 and int(value) <= 60:
+    if int_value > 15 and int_value <= 60:
         MIN_COUNT = 2
-    if int_value > 60 and (value) <= 85:
+    if int_value > 60 and int_value <= 85:
         MIN_COUNT = 1
     if int_value > 85:
         MIN_COUNT = 0
@@ -188,7 +188,7 @@ def comment_counter (videoId):
 
 
 
-def criteria_crunch (dunderSearch, value=None, nextToken=None,
+def criteria_crunch (dunderSearch, value=50, nextToken=None,
                      dunderAnchor=None, publishedBefore=None,
                      publishedAfter=None):
 # The majority of our logic operators, error checking,
