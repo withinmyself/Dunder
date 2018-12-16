@@ -19,8 +19,7 @@ def get_comments_needed():
 
 def get_ignore():
     ignore_list = db.session.query(Ignore).all()
-    for ignore in ignore_list:
-        print(ignore)
+    return ignore_list
 
 def add_ignore(videoId, videoTitle='Not Given'):
     ignore = Ignore(videoId, videoTitle)
@@ -36,8 +35,7 @@ def delete_ignore(videoId):
 
 def get_favorites():
     favorites_list = db.session.query(Ignore).all()
-    for favorite in favorites_list:
-        print(favorite)
+    return favorites_list
 
 
 def add_favorite(videoId, videoTitle='Not Given'):

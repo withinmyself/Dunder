@@ -314,8 +314,8 @@ def string_clean(dirtyText, listOrString=None):
         if listOrString == None:
             raise ArgumentsMissing('Type Needed For Return.')
 
-    except ArgumentsMissing as e:
-        print(e.code)
+    except TypeError as e:
+        print("Need to provide string or list")
     pass
 
 
