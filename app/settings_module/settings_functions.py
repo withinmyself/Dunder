@@ -4,20 +4,28 @@ from flask import flash
 
 
 def change_like_ratio(ratio):
-    float_ratio = float(ratio)
-    redis_server.set('LIKE_RATIO', float_ratio)
+    redis_server.set('LIKE_RATIO', ratio)
 
 def get_like_ratio():
     like_ratio = redis_server.get('LIKE_RATIO').decode('utf-8')
     return str(like_ratio)
 
 def change_comments_needed(amount):
-    int_amount = int(amount)
-    redis_server.set('MIN_COUNT', int_amount)
+    redis_server.set('MIN_COUNT', amount)
 
 def get_comments_needed():
     comments_needed = redis_server.get('MIN_COUNT').decode('utf-8')
     return str(comments_needed)
+
+def get_max_views():
+    max_views = redis_server.get('MAX_VIEWS').decode('utf-8')
+    return str(max_views)
+
+def change_max_views(amount):
+    redis_server.set('MAX_VIEWS', amount)
+
+
+
 
 def get_ignore():
     ignore_list = db.session.query(Ignore).all()

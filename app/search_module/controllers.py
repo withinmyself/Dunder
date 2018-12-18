@@ -36,7 +36,7 @@ def dunderbands():
             flash("Try expanding your search with sub-genres and/or countries")
             return render_template('search')
         else:
-            return render_template ('search/dunder_bands.html',
+            return render_template ('search/results.html',
                                     videoId=currentBand.videoId,
                                     nextToken = currentBand.nextToken,
                                     genre=currentBand.genre,

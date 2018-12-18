@@ -42,6 +42,24 @@
    justify-content: center;
  }
 
+ .settings-grid {
+   display: grid;
+   grid-template-columns: 8% 8% 15% 15% auto;
+   justify-content: center;
+   justify-items: center;
+ }
+.settings-grid p {
+  font-align: right;
+  font-family: 'Josefin Sans' sans-serif;
+  padding-left: 5px;
+  padding-right: 5px;
+  color:whitesmoke;
+  background-color: darkslategrey;
+  border-top: 3px solid darkred;
+  border-right: 3px solid darkred;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+}
 .flashes {
   background-color: "green";
   color: "red";
