@@ -6,7 +6,7 @@ from app.search_module.search_functions import year_selecter, \
      criteria_alter, search_getter, stat_checker, comment_counter, \
      criteria_crunch, title_clean, string_clean, ArgumentsMissing, \
      random_genre
-
+from app.settings_module.settings_functions import *
 TEST_DB = 'test.db'
 
 
@@ -35,7 +35,7 @@ class BasicTests(unittest.TestCase):
 
 
 
-# Tests
+# Search Module Tests
 
 
     def test_dunderbands(self):
@@ -114,12 +114,79 @@ class BasicTests(unittest.TestCase):
 
 
     def test_string_clean_lower_upper_string(self):
-        response = string_clean('TeStInG OuT')
-        self.assertRaises(ArgumentsMissing, response)
+        with self.assertRaises(TypeError):
+            string_clean()
 
     def test_random_genre(self):
         response = random_genre()
         self.assertTrue(isinstance(response, str))
+
+# Settings Module Tests
+
+    def test_change_like_ratio(self):
+        change_like_ratio(0.03)
+        float_ratio= float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
+        is_float = isinstance(float_ratio, float)
+        is_correct = float_ratio == 0.03
+        self.assertTrue(is_float and is_correct)
+
+    def test_get_like_ratio(self):
+        current_ratio = str(redis_server.get('LIKE_RATIO').decode('utf-8'))
+        response = get_like_ratio()
+        self.assertEqual(current_ratio, response)
+
+    def test_change_comments_needed(self):
+        change_comments_needed(3)
+        comments = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
+        is_int = isinstance(comments, int)
+        is_correct = comments == 3
+        self.assertTrue(is_int and is_correct)
+
+    def test_get_comments_needed(self):
+        current_comments = str(redis_server.get('MIN_COUNT').decode('utf-8'))
+        response = get_comments_needed()
+        self.assertEqual(current_comments, response)
+
+    def test_get_ignore(self):
+        response = get_ignore()
+        is_list = isinstance(response, list)
+        self.assertTrue(is_list)
+
+    def test_add_ignore(self):
+        add_ignore('UNIT_TEST', videoTitle='ADD_IGNORE')
+        is_there = db.session.query(Ignore).filter_by(videoId='UNIT_TEST').first()
+        is_obj = isinstance(is_there, object)
+        self.assertTrue(is_obj)
+
+    def test_delete_ignore(self):
+        delete_ignore('UNIT_TEST')
+        is_there = db.session.query(Ignore).filter_by(videoId='UNIT_TEST').first()
+        is_obj = is_there == None
+        self.assertTrue(is_obj)
+
+    def test_get_favorites(self):
+        response = get_favorites()
+        is_list = isinstance(response, list)
+        self.assertTrue(is_list)
+
+    def test_add_favorite(self):
+        add_favorite('UNIT_TEST', videoTitle='ADD_IGNORE')
+        is_there = db.session.query(Favorites).filter_by(videoId='UNIT_TEST').first()
+        is_obj = isinstance(is_there, object)
+        self.assertTrue(is_obj)
+
+    def test_delete_favorite(self):
+        delete_favorite('UNIT_TEST')
+        is_there = db.session.query(Favorites).filter_by(videoId='UNIT_TEST').first()
+        is_obj = is_there == None
+        self.assertTrue(is_obj)
+
+
+
+
+
+
+
 
 
 

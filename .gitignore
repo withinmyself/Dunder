@@ -31,6 +31,10 @@ MANIFEST
 *.manifest
 *.spec
 
+# Kivy
+.buildozer
+.buildozer/android
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt

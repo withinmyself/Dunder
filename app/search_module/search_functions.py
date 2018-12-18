@@ -1,4 +1,3 @@
-import redis
 import re
 import datetime
 import random
@@ -10,9 +9,9 @@ from oauth2client.tools import argparser
 from app.search_module.models import Albums
 from app.search_module.strings import noWords, genrePrefix, \
      genreMain, countryOfOrigin
-from app import db
+from app import db, redis_server
 
-redis_server = redis.Redis(host='127.0.0.1', port='6379')
+
 DEVELOPER_KEY = redis_server.get('DEVELOPER_KEY').decode('utf-8')
 
 YOUTUBE_API_SERVICE_NAME = "youtube"
@@ -228,14 +227,15 @@ def criteria_crunch (dunderSearch, value=50, nextToken=None,
         try:
             nextToken = searchResults['nextPageToken']
         except KeyError:
-            print("KeyError. Last Page. Adjusting Criteria")
+            print("KeyError with nextToken - breaking loop")
+            break
+            return False
             # If we reach the last page using current criteria
             # we reset the page token and set the value
             # to 50 using criteria_alter().
 
             criteria_alter(50)
             nextToken = None
-            pass
 
         for video in searchResults.get("items", []):
             try:
@@ -315,8 +315,8 @@ def string_clean(dirtyText, listOrString=None):
         if listOrString == None:
             raise ArgumentsMissing('Type Needed For Return.')
 
-    except ArgumentsMissing as e:
-        print(e.code)
+    except TypeError as e:
+        print("Need to provide string or list")
     pass
 
 
@@ -330,5 +330,3 @@ def random_genre (genrePrefix=genrePrefix, genreMain=genreMain,
     return (str('{}'.format(randomPrefix)) + ' ' +
             str('{}'.format(randomGenre)) +  ' ' +
             str('{}'.format(randomCountry)))
-
-

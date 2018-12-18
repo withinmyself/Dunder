@@ -1,0 +1,77 @@
+{% extends "search/master.html" %}
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li style.color="red">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+{% block body %}{% endblock %}
+
+
+<div class="results-grid">
+  <div class="results-item">
+  <p>{{ genre }}</p>
+  <p>{{ isFavorite.upper() }}</p>
+  <p>{{ commentPlug }}</p></div>
+    <p>{{ isFavorite.upper() }}
+  <iframe width="100%" height="315" src="https://www.youtube.com/embed/{{ videoId }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+</form>
+  <form action="{{ url_for('search.make_favorite') }}" method="POST">
+    <input type="hidden" name="videoId" value="{{ videoId }}"/>
+    <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('None') }}"/>
+    <input type="hidden" name="publishedAfter" value="{{ publishedAfter | default ('None') }}"/>
+    <input type="hidden" name="genre" value="{{ genre }}" />
+    <input type="hidden" name="videoTitle" value="{{ videoTitle }}" />
+    <div class="favorites">
+    <input type="submit" value="Click To Add As Favorite">
+  </div>
+    </form>
+  <form action="{{ url_for('search.keep_searching') }}" method="POST">
+    <input type="hidden" name="genre" value="{{ genre }}"/>
+    <input type="hidden" name="nextToken" value="{{ nextToken }}" />
+    <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('None') }}"/>
+    <input type="hidden" name="publishedAfter" value="{{ publishedAfter | default ('None') }}"/>
+    <div class="continue">
+    <input type="submit" value="Continue Searching This Genre">
+    </div>
+  </form>
+
+  <form action="{{ url_for('search.anchor_pivot') }}" method="GET">
+        <div class="home"><input type="submit" value="Return Home And Search Again">
+          <form action="{{ url_for('search.anchor_pivot') }}" method="POST">
+            <input type="hidden" name="videoId" value="{{ videoId }}"/>
+            <input type="hidden" name="genre" value="{{ genre }}" />
+            <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('None') }}"/>
+            <input type="hidden" name="publishedAfter" value="{{ publishedAfter | default ('None') }}" />
+              <div class="anchor_pivot">
+            <input type="submit" value="Anchor & Pivot">
+            </div>
+            </form>
+          </div>
+          <p>If you click "Anchor And Pivot" your next search result will be directly associated with this video.<br/>
+             </p>
+      </div>
+
+  <div class="results-item">3</div>
+  <div class="results-item">4</div>
+  <div class="results-item">5</div>
+  <div class="results-item">6</div>
+  <div class="results-item">7</div>
+  <div class="results-item">
+</div>
+
+
+<br/>
+
+<br/>
+
+<br/>
+
+
+{% endblock %}
