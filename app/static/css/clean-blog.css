@@ -189,7 +189,7 @@ img::-moz-selection {
     transition: transform 0.2s;
     border-bottom: 1px solid white;
     background-color:darkslategray;
-	
+
   }
   #mainNav.is-fixed .navbar-brand {
     color: #212529;
@@ -217,7 +217,7 @@ header.masthead {
   margin-bottom: 50px;
   width: 100%;
   background: no-repeat center center;
- 
+
   background-attachment: scroll;
   position: relative;
   -webkit-background-size: cover;
