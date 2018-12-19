@@ -3,9 +3,8 @@ import unittest
 
 from app import app, db
 from app.search_module.search_functions import year_selecter, \
-     criteria_alter, search_getter, stat_checker, comment_counter, \
-     criteria_crunch, title_clean, string_clean, ArgumentsMissing, \
-     random_genre
+     search_getter, stat_checker, comment_counter, criteria_crunch, \
+     title_clean, string_clean, random_genre
 from app.settings_module.settings_functions import *
 TEST_DB = 'test.db'
 
@@ -46,10 +45,6 @@ class BasicTests(unittest.TestCase):
     def test_year_selecter(self, year=1987):
         self.assertEqual(year_selecter(year),'1987-12-30T00:00:00Z')
 
-    def test_criteria_alter(self, value=None):
-        if value == None:
-            value = 26
-        self.assertEqual(str(criteria_alter(value)), 'MaxViews: 7800 | LikeRatio: 0.0182 | MinCount: 2')
 
     def test_search_getter(self):
         response = search_getter('Metal')
@@ -64,7 +59,8 @@ class BasicTests(unittest.TestCase):
         self.assertTrue(isinstance(response, str))
 
     def test_criteria_crunch(self):
-        response = criteria_crunch('Post Black Metal')
+        response = criteria_crunch('Post Black Metal', publishedBefore=2018,
+                                   publishedAfter=2016)
         self.assertTrue(response != None)
 
     def test_title_clean_true(self):
@@ -120,6 +116,10 @@ class BasicTests(unittest.TestCase):
     def test_random_genre(self):
         response = random_genre()
         self.assertTrue(isinstance(response, str))
+
+
+
+
 
 # Settings Module Tests
 

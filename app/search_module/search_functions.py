@@ -24,26 +24,19 @@ DEBUG = True
 SEE_TITLES = False
 
 
-class ArgumentsMissing(Exception):
-# Custom exception missing arguments.
 
-    def __init__(self, code):
-        self.code = code
-    def __str__(self):
-        return repr(self.code)
-
-def year_selecter(year):
 # Take four digit year. Return RFC3339 datetime object.
+def year_selecter(year):
 
     yearConverted = datetime.datetime(int(year),12,30).isoformat()+'Z'
     return yearConverted
 
 
 
+# Main API interaction to YouTube.
 def search_getter(q, max_results=1, token=None, location=None,
                   location_radius=None, related_video=None,
                   published_before=None, published_after=None):
-# Main API interaction to YouTube.
 
     if DEBUG == True:
         print("SEARCH_GETTER")
@@ -69,8 +62,8 @@ def search_getter(q, max_results=1, token=None, location=None,
 
 
 
-def stat_checker (videoId):
 # Pull stats to compare against.
+def stat_checker (videoId):
 
     LIKE_RATIO=float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
     VIEW_RATIO=float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
@@ -78,6 +71,9 @@ def stat_checker (videoId):
 
     if DEBUG == True:
         print("STAT_CHECKER")
+    else:
+        pass
+
     stats = YOUTUBE.videos().list(id=videoId, part='snippet, recordingDetails, statistics'
                                   ).execute()
 
@@ -90,23 +86,22 @@ def stat_checker (videoId):
     except KeyError:
         print("KeyError")
         return False
-    pass
-
 
     try:
-        if (float(dislikeCount) / float(totalVotes) <= LIKE_RATIO and
-            float(totalVotes) / float(viewCount) >= VIEW_RATIO and
-            int(viewCount) <= int(MAX_VIEWS) and
-            int(commentCount) != 0 and
-            int(viewCount) != 0
-            ):
+        isLiked     = float(dislikeCount) / float(totalVotes) <= LIKE_RATIO
+        isViewed    = float(totalVotes) / float(viewCount) >= VIEW_RATIO
+        isMax       = int(viewCount) <= MAX_VIEWS
+        hasComments = int(commentCount) != 0
+        hasViews    = int(viewCount) != 0
+        if isLiked and isViewed and isMax and hasComments and hasViews:
             return True
         else:
             return False
+
     except ZeroDivisionError:
         print("ZeroDivisionError")
         return False
-    pass
+
 
 
 def comment_counter (videoId):
@@ -211,7 +206,12 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
 
                 doHave = db.session.query(Albums).filter_by(videoId=videoId).first() == None
                 checkStats = stat_checker(videoId=videoId)
-                checkComments = comment_counter(videoId=videoId) != False
+                try:
+                    checkComments = comment_counter(videoId=videoId) != False
+                except HttpError:
+                    print('Comments Disabled')
+                    checkComments = False
+
                 if doHave and checkStats and checkComments:
                     currentBand = Albums (videoId=videoId, nextToken=nextToken, genre=dunderSearch.upper(),
                                           videoTitle=videoTitle, topComment=comment_counter(videoId=videoId),
@@ -267,16 +267,16 @@ def string_clean(dirtyText, listOrString=None):
         if listOrString == 'stringNeeded':
             return re.sub(r'[.!,;?]', ' ', dirtyText)
         if listOrString == None:
-            raise ArgumentsMissing('Type Needed For Return.')
+            return 'Arguments Missing'
 
     except TypeError as e:
-        print("Need to provide string or list")
-    pass
+        print('Arguments Missing: {0}'.format(e))
+
 
 
 # Return a string with 1 random genre, 1 random sub-genre and 1 random country
 def random_genre (genrePrefix=genrePrefix, genreMain=genreMain,
-                               countryOfOrigin=countryOfOrigin):
+                  countryOfOrigin=countryOfOrigin):
 
     randomPrefix = random.choice(genrePrefix)
     randomGenre = random.choice(genreMain)

@@ -1,4 +1,4 @@
-{% extends "search/master.html" %}
+{% extends "master.html" %}
 {% block content %}
 
 <!-- Displays messages sent from Python using flash() -->
@@ -29,8 +29,18 @@
     <input type="hidden" name="publishedAfter" value="{{ publishedAfter | default ('2016') }}"/>
     <input type="hidden" name="dunderSearch" value="{{ genre }}" />
     <input type="hidden" name="videoTitle" value="{{ videoTitle }}" />
+    <input type="hidden" name="stayOrGo" value="stay" />
   <div class="favorites">
     <input type="submit" value="Click To Add As Favorite">
+  </div>
+  </form>
+
+  <form action="{{ url_for('settings.make_ignore') }}" method="POST">
+    <input type="hidden" name="videoId" value="{{ videoId }}"/>
+    <input type="hidden" name="videoTitle" value="{{ videoTitle }}" />
+    <input type="hidden" name="stayOrGo" value="stay" />
+  <div class="ignore">
+    <input type="submit" value="Add To Your Ignore List">
   </div>
   </form>
 
