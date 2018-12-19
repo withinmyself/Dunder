@@ -32,24 +32,24 @@
   <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
-      <div class="container">
-        <a class="navbar-brand" href="#">Start Bootstrap</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top" style="background-color: black">
+      <div class="container" style="background-color: black">
+        <a class="navbar-brand" href="#">DunderBands</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="#">Home
+              <a class="nav-link" href="{{ url_for( 'search.dunderbands')}}">Home
                 <span class="sr-only">(current)</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
+              <a class="nav-link" href="{{ url_for( 'settings.about')}}">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Services</a>
+              <a class="nav-link" href="{{ url_for( 'settings.favorites')}}">Favorites</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Contact</a>
@@ -67,7 +67,9 @@
 
     <!-- Bootstrap core JavaScript -->
     <script src="{{ url_for('static', filename='bootstrap/custom-js/custom-js.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/vendor/jquery/jquery.min.css') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    			  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    			  crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
   </body>
