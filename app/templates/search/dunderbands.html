@@ -1,47 +1,51 @@
 {% extends "search/master.html" %}
-
 {% block content %}
 
+<!-- Display messages sent from Python using flash() -->
 {% with messages = get_flashed_messages() %}
   {% if messages %}
+  <div class="flask-flash">
     <ul class=flashes>
     {% for message in messages %}
-      <li>{{ message }}</li>
+      <li style.color="red">{{ message }}</li>
     {% endfor %}
     </ul>
+    </div>
   {% endif %}
 {% endwith %}
 {% block body %}{% endblock %}
 
-  <div class="topgrid">
-<div class="grid-item item-1">test</div>
-<div class="grid-item item-2"><img src="{{ url_for('static', filename = 'img/dunderbands.png') }}"></div>
-<div class="grid-item item-3">3</div>
-<div class="grid-item item-3">4</div>
-<div class="grid-item item-4">
+<div class="topgrid">
+  <div class="grid-item item-1"></div>
+  <div class="grid-item item-2"><img src="{{ url_for('static', filename = 'img/dunderbands.png') }}"></div>
+  <div class="grid-item item-3"></div>
+  <div class="grid-item item-3"></div>
+  <div class="grid-item item-4">
+
 <form action="{{ url_for('search.dunderbands') }}" method="POST">
-  <input type="hidden" name="nextToken" value="None" />
   <div class="search">
     <input placeholder="Dunder Search" type="text"   id="search" style ="background:#818181; color:#683755" name="dunderSearch" value="{{ dunderRandom }}">
   </div>
+<!-- Before/After Year input -->
   <div class="year">
-    <input placeholder="Default: 2017" type="text"  id="after" style ="background:#818181; color:#683755" name="publishedAfter"/>
-    <input placeholder="Default: 2018" type="text"  id="before" style ="background:#818181; color:#683755"name="publishedBefore"/>
-    </div>
-    <div class="hunt">
-      <input type="submit" value="Hunt" id="hunt" style ="background:#818181; color:#683755"/>
-      </div>
-  </form>
-<a href="{{ url_for('settings.settings') }}">Settings</a>
-
-
-
+    <input value="2017" type="text"  id="after" style ="background:#818181; color:#683755" name="publishedAfter"/>
+    <input value="2018" type="text"  id="before" style ="background:#818181; color:#683755"name="publishedBefore"/>
+  </div>
+<!-- Search submit button -->
+  <div class="hunt">
+    <input type="submit" value="Hunt" id="hunt" style ="background:#818181; color:#683755"/>
+  </div>
+</form>
 </div>
-<div class="grid-item item-5">6</div>
-<div class="grid-item item-6">7</div>
-<div class="grid-item item-6">8</div>
+
+<div class="grid-item item-5"></div>
+<div class="grid-item item-6"></div>
+<div class="settings">
+<div class="grid-item item-6"><a href="{{ url_for('settings.settings') }}">Change Search Criteria</a><br/>
+<a href="javascript:history.go(0)">Randomize Genres & Countries</a></div></div>
+<div class="grid-item item-7"></div>
 </div>
-    </div>
+</div>
 
 
 

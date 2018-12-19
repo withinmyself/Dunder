@@ -60,11 +60,16 @@
   border-bottom: 2px solid black;
   border-left: 2px solid black;
 }
-.flashes {
+.flask-flash ul li{
   background-color: "green";
   color: "red";
 
 }
+
+.settings a{
+  font-align: center;
+}
+
 
 
 .results-grid {

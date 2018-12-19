@@ -39,35 +39,6 @@ def year_selecter(year):
     return yearConverted
 
 
-def criteria_alter(value):
-# Takes value from the slider to adjust criteria.
-
-    if DEBUG == True:
-        print("CRITERIA_ALTER")
-
-    int_value = int(value)
-    float_value = float(int_value)
-
-    if int_value != 50:
-        redis_server.set('LIKE_RATIO', float_value * 0.0007)
-        MAX_VIEWS = int_value * 300
-    else:
-        MAX_VIEWS = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
-
-    LIKE_RATIO = redis_server.get('LIKE_RATIO').decode('utf-8')
-    if int_value <= 15:
-        MIN_COUNT = 3
-    if int_value > 15 and int_value <= 60:
-        MIN_COUNT = 2
-    if int_value > 60 and int_value <= 85:
-        MIN_COUNT = 1
-    if int_value > 85:
-        MIN_COUNT = 0
-    if DEBUG == True:
-        print("MAX_VIEWS = {0}, LIKE_RATIO = {1}, MIN_COUNT = {2}, SLIDER: {3}".format(
-                                        MAX_VIEWS, LIKE_RATIO, MIN_COUNT, value))
-
-    return "MaxViews: {0} | LikeRatio: {1} | MinCount: {2}".format(MAX_VIEWS, LIKE_RATIO, MIN_COUNT)
 
 def search_getter(q, max_results=1, token=None, location=None,
                   location_radius=None, related_video=None,
@@ -190,33 +161,28 @@ def comment_counter (videoId):
 
 
 
-def criteria_crunch (dunderSearch, value=50, nextToken=None,
-                     dunderAnchor=None, publishedBefore=None,
-                     publishedAfter=None):
+def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
+                     nextToken=None, dunderAnchor=None):
 # The majority of our logic operators, error checking,
 # and YouTube search results.
 
     if DEBUG == True:
         print("CRITERIA_CRUNCH")
-    if publishedBefore != None:
-        try:
-            publishedBefore = year_selecter(year=publishedBefore)
-        except ValueError:
+    else:
+        pass
+    try:
+        publishedBefore = year_selecter(year=publishedBefore)
+    except ValueError:
             print("Missing Year For Published Before.  Allowing Default.")
             publishedBefore = year_selecter(year=2018)
 
-    if publishedAfter != None:
-        try:
-            publishedAfter = year_selecter(year=publishedAfter)
-        except ValueError:
-            print("Missing Year For Published After.  Allowing Default.")
+    try:
+        publishedAfter = year_selecter(year=publishedAfter)
+    except ValueError:
+            print('Missing Year For Published After.  Allowing Default.')
             publishedAfter = year_selecter(year=2016)
-    criteria_alter(value)
 
     while True:
-
-        if SEE_TITLES == True:
-            print("Beat", MAX_VIEWS, MIN_COUNT, VIEW_RATIO, LIKE_RATIO)
 
         searchResults = search_getter (dunderSearch,
                                        token=nextToken,
@@ -227,50 +193,38 @@ def criteria_crunch (dunderSearch, value=50, nextToken=None,
         try:
             nextToken = searchResults['nextPageToken']
         except KeyError:
-            print("KeyError with nextToken - breaking loop")
+            print('KeyError with nextToken - breaking loop')
             break
             return False
-            # If we reach the last page using current criteria
-            # we reset the page token and set the value
-            # to 50 using criteria_alter().
-
-            criteria_alter(50)
+            #
             nextToken = None
 
-        for video in searchResults.get("items", []):
-            try:
-                if (video['id']['kind'] == "youtube#video" and
-                    title_clean(video['snippet']['title'], includeSearch=dunderSearch) == True):
+        for video in searchResults.get('items', []):
+            videoId = video['id']['videoId']
+            videoTitle = video['snippet']['title']
 
-                    videoId = video['id']['videoId']
-                    videoTitle = video['snippet']['title']
+            isVideo = video['id']['kind'] == 'youtube#video'
+            isClean = title_clean(video['snippet']['title'],
+                                  includeSearch=dunderSearch)
 
-                    if SEE_TITLES == True:
-                        print(videoTitle)
+            if isVideo and isClean:
 
-                    if (db.session.query(Albums).filter_by(videoId=videoId).first() == None and
-                        stat_checker(videoId=videoId) == True and
-                        comment_counter(videoId=videoId) != False):
+                doHave = db.session.query(Albums).filter_by(videoId=videoId).first() == None
+                checkStats = stat_checker(videoId=videoId)
+                checkComments = comment_counter(videoId=videoId) != False
+                if doHave and checkStats and checkComments:
+                    currentBand = Albums (videoId=videoId, nextToken=nextToken, genre=dunderSearch.upper(),
+                                          videoTitle=videoTitle, topComment=comment_counter(videoId=videoId),
+                                          isFavorite='')
+                    db.session.add(currentBand)
+                    db.session.commit()
+                    return currentBand
 
-                        currentBand = Albums (videoId=videoId,
-                                              nextToken=nextToken,
-                                              genre=dunderSearch.upper(),
-                                              videoTitle=videoTitle,
-                                              topComment=comment_counter(videoId=videoId),
-                                              isFavorite='')
-                        db.session.add(currentBand)
-                        db.session.commit()
-                        return currentBand
-
-                    else:
-                        pass
                 else:
                     pass
-            except HttpError:
-                print("HttpError, Comments are disabled")
-                pass
 
-    pass
+
+
 
 
 def title_clean (tubeTitle,
