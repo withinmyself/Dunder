@@ -79,6 +79,7 @@
 }
 
 .about-grid p {
+  margin-top: 2%;
   font-align: right;
   font-family: 'Josefin Sans' sans-serif;
   padding-left: 5px;
@@ -90,7 +91,14 @@
   border-bottom: 2px solid black;
   border-left: 2px solid black;
 }
+
+.item3 {
+  margin-top: 3%;
+}
+
 .item4 {
+  margin-top: 5%;
+  margin-right: 20%;
   justify-items: center;
 }
 
