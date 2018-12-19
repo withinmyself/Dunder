@@ -3,9 +3,8 @@ import unittest
 
 from app import app, db
 from app.search_module.search_functions import year_selecter, \
-     criteria_alter, search_getter, stat_checker, comment_counter, \
-     criteria_crunch, title_clean, string_clean, ArgumentsMissing, \
-     random_genre
+     search_getter, stat_checker, comment_counter, criteria_crunch, \
+     title_clean, string_clean, random_genre
 from app.settings_module.settings_functions import *
 TEST_DB = 'test.db'
 
@@ -42,14 +41,16 @@ class BasicTests(unittest.TestCase):
         response = self.app.get('/search', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
 
+    def test_dunderbands_post(self):
+        response = self.app.post('/search', data=dict(videoId='aEiOu',
+                   dunderSearch='Post Metal France', publishedBefore=2018,
+                   publishedAfter=2015, nextToken=None),follow_redirects=True)
+        self.assertIn(b'Change Search', response.data)
+
 
     def test_year_selecter(self, year=1987):
         self.assertEqual(year_selecter(year),'1987-12-30T00:00:00Z')
 
-    def test_criteria_alter(self, value=None):
-        if value == None:
-            value = 26
-        self.assertEqual(str(criteria_alter(value)), 'MaxViews: 7800 | LikeRatio: 0.0182 | MinCount: 2')
 
     def test_search_getter(self):
         response = search_getter('Metal')
@@ -64,7 +65,8 @@ class BasicTests(unittest.TestCase):
         self.assertTrue(isinstance(response, str))
 
     def test_criteria_crunch(self):
-        response = criteria_crunch('Post Black Metal')
+        response = criteria_crunch('Post Black Metal', publishedBefore=2018,
+                                   publishedAfter=2016)
         self.assertTrue(response != None)
 
     def test_title_clean_true(self):
@@ -121,29 +123,48 @@ class BasicTests(unittest.TestCase):
         response = random_genre()
         self.assertTrue(isinstance(response, str))
 
+
+
+
+
 # Settings Module Tests
 
     def test_change_like_ratio(self):
-        change_like_ratio(0.03)
+        change_like_ratio(0.018)
         float_ratio= float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
         is_float = isinstance(float_ratio, float)
-        is_correct = float_ratio == 0.03
+        is_correct = float_ratio == 0.018
         self.assertTrue(is_float and is_correct)
 
     def test_get_like_ratio(self):
-        current_ratio = str(redis_server.get('LIKE_RATIO').decode('utf-8'))
+        current_ratio = float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
         response = get_like_ratio()
-        self.assertEqual(current_ratio, response)
+
+        is_float = isinstance(current_ratio, float)
+        is_also_float = isinstance(response, float)
+        is_equal = response == current_ratio
+        self.assertTrue(is_float and is_also_float and is_equal)
+
+    def test_get_view_ratio(self):
+        current_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+        response = get_view_ratio()
+        is_float = isinstance(current_ratio, float)
+        is_also_float = isinstance(response, float)
+        is_equal = current_ratio == response
+        self.assertTrue(is_float and is_also_float and is_equal)
+
+
+
 
     def test_change_comments_needed(self):
-        change_comments_needed(3)
+        change_comments_needed(2)
         comments = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
         is_int = isinstance(comments, int)
-        is_correct = comments == 3
+        is_correct = comments == 2
         self.assertTrue(is_int and is_correct)
 
     def test_get_comments_needed(self):
-        current_comments = str(redis_server.get('MIN_COUNT').decode('utf-8'))
+        current_comments = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
         response = get_comments_needed()
         self.assertEqual(current_comments, response)
 
@@ -181,7 +202,14 @@ class BasicTests(unittest.TestCase):
         is_obj = is_there == None
         self.assertTrue(is_obj)
 
+    def test_get_max_views(self):
+        current_max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+        self.assertEqual(current_max_views, get_max_views())
 
+    def test_change_max_views(self):
+        change_max_views(20000)
+        current_max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+        self.assertEqual(current_max_views, 20000)
 
 
 

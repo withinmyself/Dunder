@@ -1,0 +1,29 @@
+{% extends "master.html"%}
+{% block content %}
+
+<form action="{{ url_for( 'settings.criteria' ) }}" method="POST">
+<div class="settings-grid">
+  <div class="item"><p>Like Ratio</p></div>
+  <div class="item"><input type="float" placeholder="{{ redis.get('LIKE_RATIO').decode('utf-8') }}" name="likeratio" size="4" style="height: 30px" value="{{ redis.get('LIKE_RATIO').decode('utf-8') }}">
+</div>
+  <div class="item"><input type="submit" value="Commit Changes" style="height: 30px" value="ratio"></div>
+
+  <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"><p>Comments</p></div>
+        <div class="item"><input type="float" placeholder="{{ redis.get('MIN_COUNT').decode('utf-8')|int|string }}" name="comments" size="4" style="height: 30px"  value="{{ redis.get('MIN_COUNT').decode('utf-8') }}"></div>
+                <div class="item"><input type="submit" value="Commit Changes" style="height: 30px" value="count"></div>
+                <div class="item"></div>
+                <div class="item"></div>
+                <div class="item"><p>Max Views</p></div>
+                <div class="item"><input type="text" placeholder="{{ redis.get('MAX_VIEWS').decode('utf-8')|int|string }}" name="views" size="4" style="height: 30px" value="{{ redis.get('MAX_VIEWS').decode('utf-8') }}"></div>
+                <div class="item"><input type="submit" value="Commit Changes" style="height: 30px"></div>
+</div>
+</form>
+
+
+
+
+
+
+{% endblock %}

@@ -1,23 +1,40 @@
+import random
+
+from flask import flash
 from app import db, redis_server
 from app.settings_module.models import Ignore, Favorites
-from flask import flash
+from app.search_module.models import Albums
 
 
 def change_like_ratio(ratio):
-    float_ratio = float(ratio)
-    redis_server.set('LIKE_RATIO', float_ratio)
+    redis_server.set('LIKE_RATIO', ratio)
 
 def get_like_ratio():
-    like_ratio = redis_server.get('LIKE_RATIO').decode('utf-8')
-    return str(like_ratio)
+    like_ratio = float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
+    return like_ratio
 
 def change_comments_needed(amount):
-    int_amount = int(amount)
-    redis_server.set('MIN_COUNT', int_amount)
+    redis_server.set('MIN_COUNT', amount)
 
 def get_comments_needed():
-    comments_needed = redis_server.get('MIN_COUNT').decode('utf-8')
-    return str(comments_needed)
+    comments_needed = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
+    return comments_needed
+
+def get_max_views():
+    max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+    return max_views
+
+def change_max_views(amount):
+    redis_server.set('MAX_VIEWS', amount)
+
+def get_view_ratio():
+    view_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+    return view_ratio
+
+def change_view_ratio(amount):
+    redis_server.set('VIEW_RATIO', amount)
+
+
 
 def get_ignore():
     ignore_list = db.session.query(Ignore).all()
@@ -36,19 +53,21 @@ def delete_ignore(videoId):
     db.session.close()
 
 def get_favorites():
-    favorites_list = db.session.query(Ignore).all()
+    favorites_list = db.session.query(Favorites).all()
     return favorites_list
+
+def get_random_favorite():
+    favorite = db.session.query(Favorites).first()
+    return favorite
+
 
 
 def add_favorite(videoId, videoTitle='Not Given'):
     str_videoId = str(videoId)
-    if db.session.query(Favorites).filter_by(videoId=str_videoId) != None:
-        flash("Album is already in your favorites")
-    else:
-        favorite = Favorites(str_videoId, videoTitle)
-        db.session.add(favorite)
-        db.session.commit()
-        db.session.close()
+    favorite = Favorites(str_videoId, videoTitle)
+    db.session.add(favorite)
+    db.session.commit()
+    db.session.close()
 
 
 def delete_favorite(videoId):
@@ -57,6 +76,7 @@ def delete_favorite(videoId):
     db.session.commit()
     db.session.close()
 
-
-
-
+def delete_empty_favorite():
+    db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
+    db.session.commit()
+    db.session.close()
