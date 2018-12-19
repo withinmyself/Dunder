@@ -21,7 +21,7 @@
 }
 
 .hunt input {
-  heith: 70px;
+  heith: 200px;
   width: 600px;
   justify-content: center;
 }
@@ -70,7 +70,36 @@
   font-align: center;
 }
 
+.about-grid {
+  display: grid;
+  grid-template-columns: 10% 10% [start2] 30% [end2] 30%  [start3] 10% [end3] 10% ;
+  grid-template-rows: auto;
+  justify-items: center;
+  justify-content: center;
+}
 
+.about-grid p {
+  font-align: right;
+  font-family: 'Josefin Sans' sans-serif;
+  padding-left: 5px;
+  padding-right: 5px;
+  color:whitesmoke;
+  background-color: darkslategrey;
+  border-top: 3px solid darkred;
+  border-right: 3px solid darkred;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+}
+.item4 {
+  justify-items: center;
+}
+
+
+.item7 {
+  grid-column-start: start2;
+  grid-column-end: start3;
+  text-align:center;
+}
 
 .results-grid {
   display: grid | inline;
@@ -104,6 +133,7 @@
   width: 100%;
   height: 27px;
     justify-content: center;
+
 }
 
 .ignore input{

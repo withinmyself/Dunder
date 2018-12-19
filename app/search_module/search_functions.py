@@ -9,6 +9,7 @@ from oauth2client.tools import argparser
 from app.search_module.models import Albums
 from app.search_module.strings import noWords, genrePrefix, \
      genreMain, countryOfOrigin
+from app.settings_module.models import Favorites, Ignore
 from app import db, redis_server
 
 
@@ -104,10 +105,10 @@ def stat_checker (videoId):
 
 
 
-def comment_counter (videoId):
 # Uses the videoID to retrieve top 100 comments.
 # After 'cleaning' the results, we try to find words
 # from our list of desirable descriptives.
+def comment_counter (videoId):
 
     MIN_COUNT = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
     if DEBUG == True:
@@ -146,20 +147,20 @@ def comment_counter (videoId):
                         else:
                             return text
         else:
-            print('False Count')
+            print('Low Count')
             return False
 
     except KeyError:
         print("KeyError - Comments Are Disabled")
         return False
-    pass
 
 
 
-def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
-                     nextToken=None, dunderAnchor=None):
+
 # The majority of our logic operators, error checking,
 # and YouTube search results.
+def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
+                     nextToken=None, dunderAnchor=None):
 
     if DEBUG == True:
         print("CRITERIA_CRUNCH")
@@ -179,11 +180,12 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
 
     while True:
 
-        searchResults = search_getter (dunderSearch,
-                                       token=nextToken,
-                                       related_video=dunderAnchor,
-                                       published_before=publishedBefore,
-                                       published_after=publishedAfter)
+        searchResults = search_getter (
+                        dunderSearch,
+                        token=nextToken,
+                        related_video=dunderAnchor,
+                        published_before=publishedBefore,
+                        published_after=publishedAfter)
 
         try:
             nextToken = searchResults['nextPageToken']
@@ -198,13 +200,15 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
             videoId = video['id']['videoId']
             videoTitle = video['snippet']['title']
 
+
             isVideo = video['id']['kind'] == 'youtube#video'
             isClean = title_clean(video['snippet']['title'],
                                   includeSearch=dunderSearch)
 
             if isVideo and isClean:
 
-                doHave = db.session.query(Albums).filter_by(videoId=videoId).first() == None
+                isFavorite = db.session.query(Favorites).filter_by(videoId=videoId).first() == None
+                doIgnore   = db.session.query(Ignore).filter_by(videoId=videoId).first() == None
                 checkStats = stat_checker(videoId=videoId)
                 try:
                     checkComments = comment_counter(videoId=videoId) != False
@@ -212,10 +216,14 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
                     print('Comments Disabled')
                     checkComments = False
 
-                if doHave and checkStats and checkComments:
-                    currentBand = Albums (videoId=videoId, nextToken=nextToken, genre=dunderSearch.upper(),
-                                          videoTitle=videoTitle, topComment=comment_counter(videoId=videoId),
-                                          isFavorite='')
+                if isFavorite and doIgnore and checkStats and checkComments:
+
+                    currentBand = Albums (
+                      videoId=videoId, nextToken=nextToken,
+                      genre=dunderSearch.upper(), videoTitle=videoTitle,
+                      topComment=comment_counter(videoId=videoId),
+                      isFavorite='')
+
                     db.session.add(currentBand)
                     db.session.commit()
                     return currentBand
@@ -223,23 +231,28 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
                 else:
                     pass
 
+            else:
+                pass
 
 
 
 
-def title_clean (tubeTitle,
-                 includeSearch='search',
-                 includeBand='band'):
 # Takes current video title and checks against our list
 # of no words.  This is to avoid 'mix' videos,
 # compilations and 'best of' lists.
+def title_clean (tubeTitle, includeSearch='search', includeBand='band'):
 
     if DEBUG == True:
         print("TITLE_CLEAN")
 
     titleList = re.sub(r'[.!,;?]', ' ', tubeTitle).lower().split()
+
+    # This gives us the option to add extra words or band names.
+    # By default is uses the search string itself to further avoid
+    # 'lists' or 'compilations' as opposed to actual albums.
     noWords.append("{0}".format(includeSearch))
     noWords.append("{0}".format(includeBand))
+
     for word in titleList:
         for noWord in noWords:
             if noWord == word:
@@ -247,9 +260,9 @@ def title_clean (tubeTitle,
     return True
 
 
-def string_clean(dirtyText, listOrString=None):
 # Takes a string and returns either a list or a string
 # upper or lower without punctuation marks
+def string_clean(dirtyText, listOrString=None):
 
     if DEBUG == True:
         print("STRING_CLEAN")

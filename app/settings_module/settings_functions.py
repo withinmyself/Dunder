@@ -1,6 +1,8 @@
+from flask import flash
+
 from app import db, redis_server
 from app.settings_module.models import Ignore, Favorites
-from flask import flash
+from app.search_module.models import Albums
 
 
 def change_like_ratio(ratio):
@@ -61,7 +63,5 @@ def delete_favorite(videoId):
     db.session.query(Favorites).filter_by(videoId=str_videoId).delete()
     db.session.commit()
     db.session.close()
-
-
 
 

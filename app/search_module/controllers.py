@@ -15,17 +15,18 @@ search_routes = Blueprint('search', __name__, url_prefix='/search')
 def dunderbands():
     dunderRandom = random_genre()
     if request.method == 'GET':
+        db.session.query(Albums).delete()
         return render_template('search/dunderbands.html',
                                dunderRandom=dunderRandom)
     else:
         try:
             dunderAnchor = request.form['videoId']
         except KeyError:
-            dunderAnchor=None
-        dunderRequest = request.form['dunderSearch']
-        dunderSearch = string_clean(dunderRequest, 'stringNeededUpper')
-        publishedBefore = request.form['publishedBefore']
-        publishedAfter = request.form['publishedAfter']
+            dunderAnchor = None
+        dunderRequest    = request.form['dunderSearch']
+        dunderSearch     = string_clean(dunderRequest, 'stringNeededUpper')
+        publishedBefore  = request.form['publishedBefore']
+        publishedAfter   = request.form['publishedAfter']
         try:
             nextToken = request.form['nextToken']
         except KeyError:

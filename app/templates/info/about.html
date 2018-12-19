@@ -1,2 +1,27 @@
 {% extends "master.html" %}
 {% block content %}
+
+<div class="about-grid">
+  <div class="about-item item1"></div>
+  <div class="about-item item2"></div>
+  <div class="about-item item3"><img src="{{ url_for('static', filename= 'img/goodevanpic.png') }}"></div>
+  <div class="about-item item4"><img src="{{ url_for('static', filename= 'img/b-card.png')}}"></div>
+  <div class="about-item item5"></div>
+  <div class="about-item item6"></div>
+  <div class="about-item item7"><p>I am an IT professional with over 13 years experience.  I worked primarily for a pharmaceutical
+    software company called QS1 Data Systems where I was tasked with installing, upgrading and maintaining servers, workstations and networks
+    at hospitals and pharmacies accross the Midwest.<br/><br/>
+
+    For the past 3 years I have been studying various programming languages in an effort to switch career paths.  I've always been fascinated
+    with programmers and coding languages and I can finally say with certainty that I am a programmer.  I still have
+    many milestones to reach and so very much to learn but I realize I'll be learning new things about code until the day I die.<br/><br/>
+
+    I suppose this website has pretty much become my portfolio.  At its center is an App I've been working on called DunderBands which I explain in
+    detail here.  I'm hosting this site myself with Nginx/Gunicorn/Flask.  All the details regarding that can be found here.  And if you follow this
+  link I will share with you my journey into the mad world of code.  There are many well received Quora posts and a couple Medium articles that I'm quite proud of as well.   </p>  </div>
+
+
+
+</div>
+
+{% endblock %}

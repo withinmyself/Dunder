@@ -72,4 +72,8 @@ def make_ignore():
         else:
             flash('Video Already Deleted From Ignore List')
     dunderRandom = random_genre()
-    return render_template('search/dunderbands.html', dunderRandom = dunderRandom) 
+    return render_template('search/dunderbands.html', dunderRandom = dunderRandom)
+
+@settings_routes.route('/about/', methods=['GET', 'POST'])
+def about():
+    return render_template('info/about.html')

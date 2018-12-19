@@ -41,6 +41,12 @@ class BasicTests(unittest.TestCase):
         response = self.app.get('/search', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
 
+    def test_dunderbands_post(self):
+        response = self.app.post('/search', data=dict(videoId='aEiOu',
+                   dunderSearch='Post Metal France', publishedBefore=2018,
+                   publishedAfter=2015, nextToken=None),follow_redirects=True)
+        self.assertIn(b'Change Search', response.data)
+
 
     def test_year_selecter(self, year=1987):
         self.assertEqual(year_selecter(year),'1987-12-30T00:00:00Z')
@@ -124,10 +130,10 @@ class BasicTests(unittest.TestCase):
 # Settings Module Tests
 
     def test_change_like_ratio(self):
-        change_like_ratio(0.03)
+        change_like_ratio(0.018)
         float_ratio= float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
         is_float = isinstance(float_ratio, float)
-        is_correct = float_ratio == 0.03
+        is_correct = float_ratio == 0.018
         self.assertTrue(is_float and is_correct)
 
     def test_get_like_ratio(self):
@@ -136,10 +142,10 @@ class BasicTests(unittest.TestCase):
         self.assertEqual(current_ratio, response)
 
     def test_change_comments_needed(self):
-        change_comments_needed(3)
+        change_comments_needed(2)
         comments = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
         is_int = isinstance(comments, int)
-        is_correct = comments == 3
+        is_correct = comments == 2
         self.assertTrue(is_int and is_correct)
 
     def test_get_comments_needed(self):
@@ -181,7 +187,14 @@ class BasicTests(unittest.TestCase):
         is_obj = is_there == None
         self.assertTrue(is_obj)
 
+    def test_get_max_views(self):
+        current_max_views = str(redis_server.get('MAX_VIEWS').decode('utf-8'))
+        self.assertEqual(current_max_views, get_max_views())
 
+    def test_change_max_views(self):
+        change_max_views(20000)
+        current_max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+        self.assertEqual(current_max_views, 20000)
 
 
 
