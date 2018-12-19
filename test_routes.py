@@ -137,9 +137,24 @@ class BasicTests(unittest.TestCase):
         self.assertTrue(is_float and is_correct)
 
     def test_get_like_ratio(self):
-        current_ratio = str(redis_server.get('LIKE_RATIO').decode('utf-8'))
+        current_ratio = float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
         response = get_like_ratio()
-        self.assertEqual(current_ratio, response)
+
+        is_float = isinstance(current_ratio, float)
+        is_also_float = isinstance(response, float)
+        is_equal = response == current_ratio
+        self.assertTrue(is_float and is_also_float and is_equal)
+
+    def test_get_view_ratio(self):
+        current_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+        response = get_view_ratio()
+        is_float = isinstance(current_ratio, float)
+        is_also_float = isinstance(response, float)
+        is_equal = current_ratio == response
+        self.assertTrue(is_float and is_also_float and is_equal)
+
+
+
 
     def test_change_comments_needed(self):
         change_comments_needed(2)
@@ -149,7 +164,7 @@ class BasicTests(unittest.TestCase):
         self.assertTrue(is_int and is_correct)
 
     def test_get_comments_needed(self):
-        current_comments = str(redis_server.get('MIN_COUNT').decode('utf-8'))
+        current_comments = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
         response = get_comments_needed()
         self.assertEqual(current_comments, response)
 
@@ -188,7 +203,7 @@ class BasicTests(unittest.TestCase):
         self.assertTrue(is_obj)
 
     def test_get_max_views(self):
-        current_max_views = str(redis_server.get('MAX_VIEWS').decode('utf-8'))
+        current_max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
         self.assertEqual(current_max_views, get_max_views())
 
     def test_change_max_views(self):

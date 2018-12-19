@@ -10,23 +10,29 @@ def change_like_ratio(ratio):
     redis_server.set('LIKE_RATIO', ratio)
 
 def get_like_ratio():
-    like_ratio = redis_server.get('LIKE_RATIO').decode('utf-8')
-    return str(like_ratio)
+    like_ratio = float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
+    return like_ratio
 
 def change_comments_needed(amount):
     redis_server.set('MIN_COUNT', amount)
 
 def get_comments_needed():
-    comments_needed = redis_server.get('MIN_COUNT').decode('utf-8')
-    return str(comments_needed)
+    comments_needed = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
+    return comments_needed
 
 def get_max_views():
-    max_views = redis_server.get('MAX_VIEWS').decode('utf-8')
-    return str(max_views)
+    max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+    return max_views
 
 def change_max_views(amount):
     redis_server.set('MAX_VIEWS', amount)
 
+def get_view_ratio():
+    view_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+    return view_ratio
+
+def change_view_ratio(amount):
+    redis_server.set('VIEW_RATIO', amount)
 
 
 
