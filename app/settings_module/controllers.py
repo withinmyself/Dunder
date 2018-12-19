@@ -77,3 +77,22 @@ def make_ignore():
 @settings_routes.route('/about/', methods=['GET', 'POST'])
 def about():
     return render_template('info/about.html')
+
+@settings_routes.route('/favorites/', methods=['GET', 'POST'])
+def favorites():
+    if request.method == 'GET':
+        fav_first = get_random_favorite()
+        fav_albums = get_favorites()
+        return render_template('favorites.html',
+                               fav_albums=fav_albums,
+                               videoId=fav_first.videoId)
+    else:
+        try:
+            fav_first = request.form['fav']
+        except KeyError:
+            fav_first = get_random_favorite()
+        fav_albums = get_favorites()
+        return render_template('favorites.html',
+                               fav_albums=fav_albums,
+                               videoId=fav_first)
+
