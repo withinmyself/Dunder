@@ -70,4 +70,7 @@ def delete_favorite(videoId):
     db.session.commit()
     db.session.close()
 
-
+def delete_empty_favorite():
+    db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
+    db.session.commit()
+    db.session.close()
