@@ -40,5 +40,40 @@ class Favorites(Base):
     def __repr__(self):
         return 'VideoID: {0:s} | VideoTitle: {1:s}'.format(self.videoId, self.videoTitle)
 
+
+class Comments(Base):
+    __tablename__ = 'comments'
+
+
+    commentWord = db.Column(db.String(500))
+    define = db.Column(db.String(500))
+
+    def __init__(self, commentWord, define):
+        self.commentWord = commentWord
+        self.define = define
+
+    def __repr__(self):
+        return 'Desirable Comment: {0}'.format(self.commentWord)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 db.create_all()
 

@@ -7,9 +7,11 @@ from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 
 from app.search_module.models import Albums
-from app.search_module.strings import noWords, genrePrefix, \
-     genreMain, countryOfOrigin
-from app.settings_module.models import Favorites, Ignore
+from app.search_module.strings import no_words, genrePrefix, \
+     genreMain, countryOfOrigin, my_exciters
+from app.settings_module.models import Favorites, Ignore, Comments
+from app.settings_module.settings_functions import get_like_ratio, \
+     get_comments_needed, get_max_views, get_view_ratio
 from app import db, redis_server
 
 
@@ -25,6 +27,19 @@ DEBUG = True
 SEE_TITLES = False
 
 
+
+# Add words from lists to database.
+def word_sort():
+    for word in no_words:
+        new_word = Comments(word, 'noWord')
+        db.session.add(new_word)
+        db.session.commit()
+        db.session.close()
+    for excite in my_exciters:
+        new_excite = Comments(excite, 'exciter')
+        db.session.add(new_excite)
+        db.session.commit()
+        db.session.close()
 
 # Take four digit year. Return RFC3339 datetime object.
 def year_selecter(year):
@@ -66,9 +81,9 @@ def search_getter(q, max_results=1, token=None, location=None,
 # Pull stats to compare against.
 def stat_checker (videoId):
 
-    LIKE_RATIO=float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
-    VIEW_RATIO=float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
-    MAX_VIEWS=int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+    LIKE_RATIO = get_like_ratio()
+    VIEW_RATIO = get_view_ratio()
+    MAX_VIEWS  = get_max_views()
 
     if DEBUG == True:
         print("STAT_CHECKER")
@@ -110,49 +125,50 @@ def stat_checker (videoId):
 # from our list of desirable descriptives.
 def comment_counter (videoId):
 
-    MIN_COUNT = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
+    MIN_COUNT = get_comments_needed()
     if DEBUG == True:
         print("COMMENT_COUNTER")
 
     wordsFound = 0
-    wordsToFind = ('amazing', 'speechless', 'fantastic',
-                   'incredible', 'masterpiece', 'breathtaking',
-                   'transcendental')
 
-    comments = YOUTUBE.commentThreads().list (part="snippet",
-                                              maxResults=100,
-                                              videoId=videoId,
-                                              textFormat="plainText"
-                                              ).execute()
+    comments = YOUTUBE.commentThreads().list (
+                                part="snippet",
+                                maxResults=100,
+                                videoId=videoId,
+                                textFormat="plainText"
+                                ).execute()
+
+    extra_words = db.session.query(Comments).filter_by(define='exciter').all()
+    for exciter in extra_words:
+        my_exciters.append('{0}'.format(exciter.commentWord))
+    my_best_exciters = list(set(my_exciters))
+
     try:
         for item in comments["items"]:
             comment = item["snippet"]["topLevelComment"]
             text = comment["snippet"]["textDisplay"]
             cleanTxt = re.sub(r'[.!,;?]', ' ', text).lower()
-
-            for word in wordsToFind:
+            for word in my_best_exciters:
                 wordsFound = wordsFound + cleanTxt.count(word)
-
-        # If MIN_COUNT is met, search through again and
-        # return one comment that includes our found words
-        if int(wordsFound) >= MIN_COUNT:
-            for item in comments["items"]:
-                comment = item["snippet"]["topLevelComment"]
-                text = comment["snippet"]["textDisplay"]
-                cleanTxt = re.sub(r'[.!,;?]', ' ', text).lower()
-                for word in wordsToFind:
-                    if cleanTxt.count(word) > 0:
-                        if len(text) > 500:
-                            return text[:450]
-                        else:
-                            return text
-        else:
-            print('Low Count')
-            return False
-
     except KeyError:
         print("KeyError - Comments Are Disabled")
         return False
+
+    if int(wordsFound) >= MIN_COUNT:
+        for item in comments["items"]:
+            comment = item["snippet"]["topLevelComment"]
+            text = comment["snippet"]["textDisplay"]
+            cleanTxt = re.sub(r'[.!,;?]', ' ', text).lower()
+            for word in my_best_exciters:
+                if cleanTxt.count(word) > 0:
+                    if len(text) > 500:
+                        return text[:450]
+                    else:
+                        return text
+    else:
+        print('Low Count')
+        return False
+
 
 
 
@@ -250,11 +266,14 @@ def title_clean (tubeTitle, includeSearch='search', includeBand='band'):
     # This gives us the option to add extra words or band names.
     # By default is uses the search string itself to further avoid
     # 'lists' or 'compilations' as opposed to actual albums.
-    noWords.append("{0}".format(includeSearch))
-    noWords.append("{0}".format(includeBand))
-
+    no_words.append('{0}'.format(includeSearch))
+    no_words.append('{0}'.format(includeBand))
+    extra_no_words = db.session.query(Comments).filter_by(define='noWord').all()
+    for word in extra_no_words:
+        no_words.append('{0}'.format(word.commentWord))
+    best_no_words = list(set(no_words))
     for word in titleList:
-        for noWord in noWords:
+        for noWord in best_no_words:
             if noWord == word:
                 return False
     return True

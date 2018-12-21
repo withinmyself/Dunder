@@ -26,7 +26,10 @@ def criteria():
     change_max_views(request.form['views'])
     change_comments_needed(request.form['comments'])
     change_like_ratio(request.form['likeratio'])
-    return render_template('settings/settings.html', redis=redis_server)
+    change_view_ratio(request.form['view_ratio'])
+    dunderRandom = random_genre()
+    return render_template('search/dunderbands.html',
+                           dunderRandom=dunderRandom)
 
 
 

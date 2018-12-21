@@ -1,6 +1,9 @@
 import random
 
 from flask import flash
+
+
+
 from app import db, redis_server
 from app.settings_module.models import Ignore, Favorites
 from app.search_module.models import Albums

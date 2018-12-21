@@ -15,38 +15,39 @@
 {% endwith %}
 {% block body %}{% endblock %}
 
-<div class="topgrid">
-  <div class="grid-item item-1"></div>
-  <div class="grid-item item-2"><img src="{{ url_for('static', filename = 'img/dunderbands.png') }}"></div>
-  <div class="grid-item item-3"></div>
-  <div class="grid-item item-3"></div>
-  <div class="grid-item item-4">
+<!-- Start of main CSS grid -->
+<div class="dunder-grid">
+  <div class="grid-item dunder-1"></div>
+  <div class="grid-item dunder-2"><img src="{{ url_for('static', filename = 'img/dunderbands.png') }}"></div>
+  <div class="grid-item dunder-3"></div>
+  <div class="grid-item dunder-3"></div>
 
-<form action="{{ url_for('search.dunderbands') }}" method="POST">
-  <div class="search">
-    <input placeholder="Dunder Search" type="text"   id="search" style ="background: darkslategrey; color: darkred" name="dunderSearch" value="{{ dunderRandom.upper() }}">
-  </div>
-<!-- Before/After Year input -->
-  <div class="year">
-    <input value="2017" type="text"  id="after" style ="background:darkslategrey; color:darkred" name="publishedAfter"/>
-    <input value="2018" type="text"  id="before" style ="background:darkslategrey; color:darkred"name="publishedBefore"/>
-  </div>
-<!-- Search submit button -->
-  <div class="hunt">
-    <input type="submit" value="HUNT" id="hunt" style ="background:darkslategrey; color:darkred"/>
-  </div>
-</form>
+<div class="grid-item dunder-4">
+  <form action="{{ url_for('search.dunderbands') }}" method="POST">
+    <div class="search">
+      <input placeholder="Dunder Search" type="text"   id="search" style ="background: darkslategrey; color: darkred" name="dunderSearch" value="{{ dunderRandom.upper() }}">
+    </div>
+
+    <!-- Before/After Year input -->
+    <div class="year">
+      <input value="2017" type="text"  id="after" style ="background:darkslategrey; color:darkred" name="publishedAfter"/>
+      <input value="2018" type="text"  id="before" style ="background:darkslategrey; color:darkred"name="publishedBefore"/>
+    </div>
+
+    <!-- Search submit button -->
+    <div class="hunt">
+      <input type="submit" value="HUNT" id="hunt" style ="background:darkslategrey; color:darkred"/>
+    </div>
+  </form>
 </div>
 
-<div class="grid-item item-5"></div>
-<div class="grid-item item-6"></div>
+<div class="grid-item dunder-5"></div>
+<div class="grid-item dunder-6"></div>
 <div class="settings">
-<div class="grid-item item-6"><a href="{{ url_for('settings.settings') }}">Change Search Criteria</a><br/>
-<a href="javascript:history.go(0)">Randomize Genres & Countries</a></div></div>
-<div class="grid-item item-7"></div>
+<div class="grid-item dunder-6"><a href="{{ url_for('settings.settings') }}">Change Search Criteria</a><br/>
+<a href="{{ url_for('search.dunderbands') }}">Randomize Genres & Countries</a></div></div>
+<div class="grid-item dunder-7"></div>
 </div>
-</div>
-
-
+<!-- End CSS Grid -->
 
 {% endblock %}

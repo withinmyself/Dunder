@@ -5,8 +5,8 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="Alt Search Engine For Underground Underrated Artists">
+    <meta name="author" content="E.T. Deubner">
 
     <link rel="apple-touch-icon" sizes="57x57" href="{{ url_for('static', filename='img/apple-icon-57x57.png') }}">
     <link rel="apple-touch-icon" sizes="60x60" href="{{ url_for('static', filename='img/apple-icon-60x60.png') }}">
@@ -31,18 +31,22 @@
 
   <body>
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top" style="background-color: black">
-      <div class="container" style="background-color: black">
+
+    <nav class="navbar navbar-expand-lg  static-top" style="background-color: black">
+      <div class="container" style="background-color: black; color: darkred; width: 100%" >
         <a class="navbar-brand" href="#">DunderBands</a>
+
+
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
+
+
+        <div class="collapse navbar-collapse" id="navbarResponsive" style="background-color: black;">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
               <a class="nav-link" href="{{ url_for( 'search.dunderbands')}}">Home
-                <span class="sr-only">(current)</span>
+
               </a>
             </li>
             <li class="nav-item">
@@ -56,8 +60,11 @@
             </li>
           </ul>
         </div>
+
+
       </div>
     </nav>
+
 
     {% block content %}
     {% endblock%}

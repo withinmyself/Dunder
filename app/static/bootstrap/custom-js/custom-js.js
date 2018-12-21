@@ -4,7 +4,7 @@ document.getElementById("hunt").onmouseout = function() {mouseOut()};
 
 function mouseOver() {
   document.getElementById("hunt").style.background = "darkred";
-  document.getElementById("hunt").style.color = "darkslategrey";
+  document.getElementById("hunt").style.color = "#0e62c4";
 }
 
 function mouseOut() {
@@ -16,7 +16,7 @@ document.getElementById("search").onmouseover = function() {mouseOverSearch()};
 document.getElementById("search").onmouseout = function() {mouseOutSearch()};
 function mouseOverSearch() {
   document.getElementById("search").style.background = "darkred";
-  document.getElementById("search").style.color = "darkslategrey";
+  document.getElementById("search").style.color = "#0e62c4";
 }
 
 function mouseOutSearch() {
@@ -29,7 +29,7 @@ document.getElementById("after").onmouseover = function() {mouseOverAfter()};
 document.getElementById("after").onmouseout = function() {mouseOutAfter()};
 function mouseOverAfter() {
   document.getElementById("after").style.background = "darkred";
-  document.getElementById("after").style.color = "darkslategrey";
+  document.getElementById("after").style.color = "#0e62c4";
 }
 
 function mouseOutAfter() {
@@ -42,7 +42,7 @@ document.getElementById("before").onmouseover = function() {mouseOverBefore()};
 document.getElementById("before").onmouseout = function() {mouseOutBefore()};
 function mouseOverBefore() {
   document.getElementById("before").style.background = "darkred";
-  document.getElementById("before").style.color = "darkslategrey";
+  document.getElementById("before").style.color = "#0e62c4";
 }
 
 function mouseOutBefore() {
