@@ -50,7 +50,7 @@ p {
 }
 
 p a {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 h1,
@@ -71,7 +71,7 @@ a {
 }
 
 a:focus, a:hover {
-  color: #23fa1a;
+  color: #74499c;
 }
 
 blockquote {
@@ -349,7 +349,7 @@ header.masthead .post-heading .meta a {
 }
 
 .post-preview > .post-meta > a:focus, .post-preview > .post-meta > a:hover {
-  text-decoration: underline;
+  text-decoration: none;
   color: #0085A1;
 }
 

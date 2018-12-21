@@ -14,10 +14,12 @@ search_routes = Blueprint('search', __name__, url_prefix='/search')
 # Main search page
 @search_routes.route('/', methods=['GET', 'POST'])
 def dunderbands():
+    db.session.query(Albums).delete()
+    db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
+    db.session.commit()
+    db.session.close()
     dunderRandom = random_genre()
     if request.method == 'GET':
-        db.session.query(Albums).delete()
-        db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
         return render_template('search/dunderbands.html',
                                dunderRandom=dunderRandom)
     else:

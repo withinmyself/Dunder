@@ -216,7 +216,6 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
             videoId = video['id']['videoId']
             videoTitle = video['snippet']['title']
 
-
             isVideo = video['id']['kind'] == 'youtube#video'
             isClean = title_clean(video['snippet']['title'],
                                   includeSearch=dunderSearch)
