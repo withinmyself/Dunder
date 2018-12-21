@@ -86,7 +86,7 @@ def favorites():
     if request.method == 'GET':
         fav_first = get_random_favorite()
         fav_albums = get_favorites()
-        return render_template('favorites.html',
+        return render_template('info/favorites.html',
                                fav_albums=fav_albums,
                                videoId=fav_first.videoId)
     else:
@@ -95,7 +95,7 @@ def favorites():
         except KeyError:
             fav_first = get_random_favorite()
         fav_albums = get_favorites()
-        return render_template('favorites.html',
+        return render_template('info/favorites.html',
                                fav_albums=fav_albums,
                                videoId=fav_first)
 
