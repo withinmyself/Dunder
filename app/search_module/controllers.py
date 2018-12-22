@@ -1,5 +1,6 @@
 from flask import Blueprint, request, render_template, \
                   flash, g, session, redirect, url_for
+import asyncio
 
 from app import db, redis_server
 from app.settings_module.models import Favorites
