@@ -26,16 +26,15 @@ SECRET_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
 
 # Flask-Mail SMTP server settings
 MAIL_SERVER = 'smtp.gmail.com'
-MAIL_PORT = 465
-MAIL_USE_SSL = True
-MAIL_USE_TLS = False
-MAIL_USERNAME = redis_server.get('USERNAME').decode('utf-8')
-MAIL_PASSWORD = redis_server.get('PASSWORD').decode('utf-8')
-MAIL_DEFAULT_SENDER = redis_server.get('DEFAULT_SENDER').decode('utf-8')
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+MAIL_USERNAME = 'withinmyself@gmail.com'
+MAIL_PASSWORD = 'ETD0009ED7171'
+MAIL_DEFAULT_SENDER = 'withinmyself@gmail.com'
 
 # Flask-User settings
 USER_APP_NAME = 'DunderBands'      # Shown in and email templates and page footers
 USER_ENABLE_EMAIL = True        # Enable email authentication
 USER_ENABLE_USERNAME = False    # Disable username authentication
-USER_EMAIL_SENDER_NAME = USER_APP_NAME
-USER_EMAIL_SENDER_EMAIL = "noreply@example.com"
+USER_EMAIL_SENDER_NAME = 'Fatso McGee'
+USER_EMAIL_SENDER_EMAIL = 'withinmyself@gmail.com'
