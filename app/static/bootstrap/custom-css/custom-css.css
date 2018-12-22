@@ -16,7 +16,33 @@
    justify-items: center;
    justify-content: center;
 }
+.prefix input {
+  height: 40px;
+  width: 600px;
+  text-align:center;
+     text-shadow: 2px 2px black;
+}
 
+.subgenre input{
+  height: 40px;
+  width: 600px;
+  text-align:center;
+     text-shadow: 2px 2px black;
+}
+
+.genre input{
+  height: 40px;
+  width: 600px;
+  text-align:center;
+     text-shadow: 2px 2px black;
+}
+
+.country input{
+  height: 40px;
+  width: 600px;
+  text-align:center;
+     text-shadow: 2px 2px black;
+}
 
 
 

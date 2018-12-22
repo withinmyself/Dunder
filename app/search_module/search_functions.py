@@ -182,19 +182,24 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
         print("CRITERIA_CRUNCH")
     else:
         pass
-    try:
-        publishedBefore = year_selecter(year=publishedBefore)
-    except ValueError:
-            print("Missing Year For Published Before.  Allowing Default.")
+    redis_server.set('WHILE', 'GO')
+    while True:
+        if str(redis_server.get('WHILE').decode('utf-8')) == 'NOGO':
+            print('Redis is a NOGO')
+            return False
+        else:
+            pass
+        try:
+            publishedBefore = year_selecter(year=publishedBefore)
+        except ValueError:
+            print('Default Before')
             publishedBefore = year_selecter(year=2018)
 
-    try:
-        publishedAfter = year_selecter(year=publishedAfter)
-    except ValueError:
-            print('Missing Year For Published After.  Allowing Default.')
+        try:
+            publishedAfter = year_selecter(year=publishedAfter)
+        except ValueError:
+            print('Default After')
             publishedAfter = year_selecter(year=2016)
-
-    while True:
 
         searchResults = search_getter (
                         dunderSearch,
@@ -202,16 +207,29 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
                         related_video=dunderAnchor,
                         published_before=publishedBefore,
                         published_after=publishedAfter)
-
         try:
             nextToken = searchResults['nextPageToken']
         except KeyError:
+            redis_server.incr('AROUND')
             print('KeyError with nextToken - breaking loop')
-            break
-            return False
-            #
-            nextToken = None
-
+            if int(str(redis_server.get('AROUND').decode('utf-8'))) == 1:
+                dunderSearch = dunderSearch[int(str(redis_server.get('PREFIX').decode('utf-8')))+1:len(dunderSearch)]
+                print(dunderSearch)
+                nextToken = None
+            else:
+                pass
+            if int(str(redis_server.get('AROUND').decode('utf-8'))) == 2:
+                dunderSearch = dunderSearch[:-int(str(redis_server.get('COUNTRY').decode('utf-8')))-1]
+                print(dunderSearch)
+                nextToken = None
+            else:
+                pass
+            if int(str(redis_server.get('AROUND').decode('utf-8'))) == 3:
+                redis_server.set('WHILE', 'NOGO')
+                redis_server.set('AROUND', 0)
+                return False
+            else:
+                pass
         for video in searchResults.get('items', []):
             videoId = video['id']['videoId']
             videoTitle = video['snippet']['title']
@@ -232,7 +250,7 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
                     checkComments = False
 
                 if isFavorite and doIgnore and checkStats and checkComments:
-
+                    redis_server.set('WHILE', 'NOGO')
                     currentBand = Albums (
                       videoId=videoId, nextToken=nextToken,
                       genre=dunderSearch.upper(), videoTitle=videoTitle,

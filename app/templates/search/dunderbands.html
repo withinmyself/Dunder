@@ -29,9 +29,18 @@
     <form action="{{ url_for('search.dunderbands') }}" method="POST">
 
     <!-- Search bar input.  Pulls random genre as placeholder/value. -->
-    <div class="search"><input placeholder="Dunder Search" type="text"
-      id="search" style ="background: darkslategrey; color: whitesmoke"
-      name="dunderSearch" value="{{ dunderRandom.upper() }}"></div>
+    <div class="prefix"><input placeholder="Prefix" type="text"
+      id="prefix" style ="background: darkslategrey; color: whitesmoke"
+      name="prefix" ></div>
+      <div class="subgenre"><input placeholder="Subgenre" type="text"
+        id="subgenre" style ="background: darkslategrey; color: whitesmoke"
+        name="subgenre" ></div>
+        <div class="genre"><input placeholder="Genre" type="text"
+          id="genre" style ="background: darkslategrey; color: whitesmoke"
+          name="genre" ></div>
+          <div class="country"><input placeholder="Country" type="text"
+            id="country" style ="background: darkslategrey; color: whitesmoke"
+            name="country" ></div>
 
     <!-- Before/After Year input -->
     <div class="year"><input value="2017" type="text"

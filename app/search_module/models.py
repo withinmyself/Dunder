@@ -1,5 +1,4 @@
-from app import db
-
+from app import db 
 
 
 # Base model for all other database classes to inherit
