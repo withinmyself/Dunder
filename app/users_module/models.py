@@ -1,4 +1,4 @@
-from flask_user import UserMixin
+from flask_login import UserMixin
 from app import db
 import datetime
 
@@ -16,7 +16,7 @@ class User(db.Model, UserMixin):
     # User information
     first_name = db.Column(db.String(100), nullable=True, server_default='')
     last_name = db.Column(db.String(100), nullable=True, server_default='')
-
+    username = db.Column(db.String(100), nullable=True, server_default='')
     # Define the relationship to Role via UserRoles
     roles = db.relationship('Role', secondary='user_roles')
 

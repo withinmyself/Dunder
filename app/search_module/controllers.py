@@ -1,6 +1,9 @@
 from flask import Blueprint, request, render_template, \
                   flash, g, session, redirect, url_for
+from flask_login import login_required, logout_user, current_user
+
 import asyncio
+
 
 from app import db, redis_server
 from app.settings_module.models import Favorites
@@ -14,6 +17,7 @@ search_routes = Blueprint('search', __name__, url_prefix='/search')
 
 # Main search page
 @search_routes.route('/', methods=['GET', 'POST'])
+@login_required
 def dunderbands():
     db.session.query(Albums).delete()
     db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
