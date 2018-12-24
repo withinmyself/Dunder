@@ -1,5 +1,4 @@
 import redis
-redis_server = redis.Redis(host='127.0.0.1', port='6379')
 # Statement for enabling the development environment
 DEBUG = True
 
@@ -7,12 +6,16 @@ DEBUG = True
 import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
+redis_server = redis.Redis(os.environ['REDISTOGO_URL'])
+
 # Postgres database link stored in Redis
-SQLALCHEMY_DATABASE_URI = redis_server.get('SQL_DATABASE').decode('utf-8')
+
+SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+#SQLALCHEMY_DATABASE_URI = redis_server.get('SQL_DATABASE').decode('utf-8')
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Look into later
-THREADS_PER_PAGE = 2
+# THREADS_PER_PAGE = 2
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
 CSRF_ENABLED     = True
