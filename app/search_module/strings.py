@@ -12,11 +12,11 @@ no_words=[
 
   'recordings', 'live', 'guest', 'popular', 'talented',
 
-  'vocals', 'mixing', 'recording', 'rock', 'metal', 'documentary',
+  'vocals', 'mixing', 'recording', 'documentary',
 
   'extreme', 'mixtape', 'mix)', '(', ')', '90s', '80s', '70s', '60s', '50s',
 
-  'band', 'debate', 'blackgaze', 'tutorial','guide', 'year','level',
+  'band', 'debate', 'tutorial','guide', 'year','level',
 
   'workshop', 'design', 'food', 'tour', 'classics', 'modern', 'hours',
 

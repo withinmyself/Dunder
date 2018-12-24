@@ -5,7 +5,7 @@ from flask import flash
 
 
 from app import db, redis_server
-from app.settings_module.models import Ignore, Favorites
+from app.users_module.models import Ignore, Favorites
 from app.search_module.models import Albums
 
 
@@ -47,13 +47,13 @@ def add_ignore(videoId, videoTitle='Not Given'):
     ignore = Ignore(videoId, videoTitle)
     db.session.add(ignore)
     db.session.commit()
-    db.session.close()
+
 
 def delete_ignore(videoId):
     str_videoId = str(videoId)
     db.session.query(Ignore).filter_by(videoId=str_videoId).delete()
     db.session.commit()
-    db.session.close()
+
 
 def get_favorites():
     favorites_list = db.session.query(Favorites).all()
@@ -63,23 +63,25 @@ def get_random_favorite():
     favorite = db.session.query(Favorites).first()
     return favorite
 
-
+def get_one_favorite(videoId):
+    favorite = db.session.query(Favorites).first()
+    return favorite
 
 def add_favorite(videoId, videoTitle='Not Given'):
     str_videoId = str(videoId)
     favorite = Favorites(str_videoId, videoTitle)
     db.session.add(favorite)
     db.session.commit()
-    db.session.close()
+
 
 
 def delete_favorite(videoId):
     str_videoId = str(videoId)
     db.session.query(Favorites).filter_by(videoId=str_videoId).delete()
     db.session.commit()
-    db.session.close()
+
 
 def delete_empty_favorite():
     db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
     db.session.commit()
-    db.session.close()
+

@@ -15,6 +15,8 @@
 {% endwith %}
 {% block body %}{% endblock %}
 
+
+
 <!-- Start of main CSS grid -->
 <div class="dunder-grid"><div class="grid-item dunder-1"></div>
 
@@ -55,7 +57,11 @@
     </form>
   </div>
 </div>
-</div>
+{% if current_user.is_authenticated %}
+				<h4 style="text-align: left;margin-left: 38%;font-family: 'Courier New', Courier, monospace;color: rgb(255, 157, 0);">
+				Logged In As {{ '{0} {1}'.format(current_user.first_name, current_user.last_name) }} </h4> 
+				{% endif %}
+
 
 <!-- End CSS Grid -->
 

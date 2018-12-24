@@ -1,30 +1,32 @@
 from flask import Blueprint, request, render_template, \
                   flash, g, session, redirect, url_for
-from flask_login import login_required, logout_user, current_user
+from app.users_module.controllers import login_manager, current_user
+from flask_login import login_required
 
 import asyncio
 
 
 from app import db, redis_server
-from app.settings_module.models import Favorites
+from app.users_module.models import Favorites
 from app.search_module.models import Albums
 from app.search_module.search_functions import criteria_crunch, \
-     string_clean, random_genre
+     string_clean, random_genre, no_word_string
 
 search_routes = Blueprint('search', __name__, url_prefix='/search')
 
 # Routes for our search engine
 
 # Main search page
-@search_routes.route('/', methods=['GET', 'POST'])
 @login_required
+@search_routes.route('/', methods=['GET', 'POST'])
 def dunderbands():
     db.session.query(Albums).delete()
     db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
     db.session.commit()
     db.session.close()
     if request.method == 'GET':
-        return render_template('search/dunderbands.html')
+        return render_template('search/dunderbands.html',
+                                current_user=current_user)
         redis_server.set('AROUND', 0)
     else:
         try:
@@ -40,7 +42,7 @@ def dunderbands():
             redis_server.set('SUBGENRE', len(subgenre))
             redis_server.set('COUNTRY', len(country))
             dunderRequest    = '{0:s} {1:s} {2:s} {3:s}'.format(
-                               prefix, subgenre, genre, country)
+                                prefix, subgenre, genre, country)
         except KeyError:
             dunderRequest    = request.form['dunderRequest']
         dunderSearch     = string_clean(dunderRequest, 'stringNeededUpper')
@@ -51,24 +53,22 @@ def dunderbands():
         except KeyError:
             nextToken = None
         currentBand = criteria_crunch(
-            dunderSearch=dunderSearch,
-            publishedBefore=publishedBefore,
-            publishedAfter=publishedAfter,
-            nextToken=nextToken, dunderAnchor=dunderAnchor)
+            dunderSearch     = dunderSearch,
+            publishedBefore  = publishedBefore,
+            publishedAfter   = publishedAfter,
+            nextToken        = nextToken,
+            dunderAnchor     = dunderAnchor)
 
         if currentBand == None or currentBand == False:
             flash('Search String Exausted | Double Your Efforts')
             return render_template('search/dunderbands.html')
         else:
-            return render_template ('search/results.html',
-                                    videoId=currentBand.videoId,
-                                    nextToken = currentBand.nextToken,
-                                    genre=currentBand.genre,
-                                    videoTitle=currentBand.videoTitle,
-                                    commentPlug=currentBand.topComment,
-                                    isFavorite=currentBand.isFavorite,
-                                    publishedBefore=publishedBefore,
-                                    publishedAfter=publishedAfter)
+            return render_template (
+                'search/results.html',
+                 currentBand     = currentBand,
+                 publishedBefore = publishedBefore,
+                 publishedAfter  = publishedAfter,
+                 current_user    = current_user)
 
 
 

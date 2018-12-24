@@ -7,9 +7,9 @@
       {% endfor %}
    {% endif %}
 {% endwith %}
-<iframe width="100%" height="315" src="https://www.youtube.com/embed/{{ videoId }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<iframe width="100%" height="315" src="https://www.youtube.com/embed/{{ first_video }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
-	{% for album in fav_albums %}
+	{% for album in current_user.favorites %}
 	<form action="{{ url_for('settings.favorites') }}" method="POST">
 		<input type="hidden" name="fav" value="{{ album.videoId }}"/>
 		<p><input type="submit" value="{{ album.videoTitle }}"></p>

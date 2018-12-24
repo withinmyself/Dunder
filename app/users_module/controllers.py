@@ -9,7 +9,7 @@ from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.users_module.models import User, Role, UserRoles
+from app.users_module.models import User
 from app import app, db, redis_server
 users_routes = Blueprint('users', __name__, url_prefix='/users')
 Bootstrap(app)
@@ -54,9 +54,7 @@ def signup():
     if form.validate_on_submit():
         hashed_password = generate_password_hash(form.password.data, method='sha256')
         username = '{0}{1}'.format(form.first_name.data[:-len(form.first_name.data)+1].lower(), form.last_name.data.lower())
-        new_user = User(email=form.email.data, password=hashed_password,
-                        first_name=form.first_name.data, last_name=form.last_name.data,
-                        username=username)
+        new_user = User(email=form.email.data, password=hashed_password, username=username)
         db.session.add(new_user)
         db.session.commit()
         return '<h1>New User Has Been Created!</h1>'

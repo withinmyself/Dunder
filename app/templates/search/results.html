@@ -17,22 +17,19 @@
 
 <div class="results-grid">
   <div class="results-item">
-    <p>{{ genre }}</p>
-    <p>{{ isFavorite.upper() }}</p>
-    <p>{{ commentPlug }}</p>
-    <p>{{ isFavorite.upper() }}</p>
+    <p>{{ currentBand.genre }}</p>
+    <p>{{ currentBand.commentPlug }}</p>
   </div>
 
   <!-- Shows embed video of found album -->
-  <iframe width="100%" height="315" src="https://www.youtube.com/embed/{{ videoId }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <iframe width="100%" height="315" src="https://www.youtube.com/embed/{{ currentBand.videoId }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
   <!-- Add album to favorites by adding the VideoId and Video Title to the database -->
-  <form action="{{ url_for('settings.make_favorite') }}" method="POST">
-    <input type="hidden" name="videoId" value="{{ videoId }}"/>
+  <form action="{{ url_for('settings.make_favorite') }}" method="POST" />
+    <input type="hidden" name="videoTitle" value = "{{ currentBand.videoTitle }}" />
+    <input type="hidden" name="videoId" value="{{ currentBand.videoId }}"/>
     <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('2018') }}"/>
     <input type="hidden" name="publishedAfter"  value="{{ publishedAfter | default ('2016') }}"/>
-    <input type="hidden" name="dunderSearch"    value="{{ genre }}" />
-    <input type="hidden" name="videoTitle"      value="{{ videoTitle }}" />
     <input type="hidden" name="stayOrGo"        value="stay" />
   <div class="favorites"><input type="submit" id="fav" value="Click To Add As Favorite"
     style="color:whitesmoke;background-color:darkslategrey"
@@ -44,8 +41,8 @@
     </form>
 
   <form action="{{ url_for('settings.make_ignore') }}" method="POST">
-    <input type="hidden" name="videoId"    value="{{ videoId }}"/>
-    <input type="hidden" name="videoTitle" value="{{ videoTitle }}" />
+    <input type="hidden" name="videoId"    value="{{ currentBand.videoId }}"/>
+    <input type="hidden" name="videoTitle" value="{{ currentBand.videoTitle }}" />
     <input type="hidden" name="stayOrGo"   value="stay" />
   <div class="ignore">
     <input type="submit" id="ignore" value="Add To Your Ignore List"
@@ -59,8 +56,8 @@
 
   <!-- Keep searching with the same search string but moving to the next token -->
   <form action="{{ url_for('search.dunderbands') }}" method="POST">
-    <input type="hidden" name="dunderRequest" value="{{ genre }}"/>
-    <input type="hidden" name="nextToken" value="{{ nextToken }}" />
+    <input type="hidden" name="dunderRequest" value="{{ currentBand.genre }}"/>
+    <input type="hidden" name="nextToken" value="{{ currentBand.nextToken }}" />
     <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('2018') }}"/>
     <input type="hidden" name="publishedAfter" value="{{ publishedAfter | default ('2016') }}"/>
     <div class="continue">
@@ -84,8 +81,8 @@
 
 <!-- Anchor Pivot takes the VideoID and uses it as the main search point -->
   <form action="{{ url_for('search.dunderbands') }}" method="POST">
-    <input type="hidden" name="videoId" value="{{ videoId }}"/>
-    <input type="hidden" name="dunderRequest" value="{{ genre }}" />
+    <input type="hidden" name="videoId" value="{{ currentBand.videoId }}"/>
+    <input type="hidden" name="dunderRequest" value="{{ currentBand.genre }}" />
     <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('2018') }}"/>
     <input type="hidden" name="publishedAfter" value="{{ publishedAfter | default ('2016') }}" />
     <div class="anchor_pivot"><input type="submit" id="anchor" value="Anchor & Pivot"

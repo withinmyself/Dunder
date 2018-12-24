@@ -9,7 +9,8 @@ from oauth2client.tools import argparser
 from app.search_module.models import Albums
 from app.search_module.strings import no_words, genrePrefix, \
      genreMain, countryOfOrigin, my_exciters
-from app.settings_module.models import Favorites, Ignore, Comments
+from app.users_module.models import Favorites, Ignore, Comments
+from app.users_module.controllers import current_user
 from app.settings_module.settings_functions import get_like_ratio, \
      get_comments_needed, get_max_views, get_view_ratio
 from app import db, redis_server
@@ -26,7 +27,9 @@ YOUTUBE = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 DEBUG = True
 SEE_TITLES = False
 
-
+def no_word_string():
+    search_no_words = ['-{0}'.format(word) for word in no_words]
+    return re.sub(r'[.!,;?]', ' ', str(search_no_words)).upper()
 
 # Add words from lists to database.
 def word_sort():
@@ -239,9 +242,19 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
                                   includeSearch=dunderSearch)
 
             if isVideo and isClean:
+                isFavorite = True
+                doIgnore   = True
+                for favorite in current_user.favorites:
+                    if favorite.videoId == videoId:
+                        isFavorite = False
+                    else:
+                        continue
+                for ignore in current_user.ignore:
+                    if ignore.videoId == videoId:
+                        doIgnore = False
+                    else:
+                        continue
 
-                isFavorite = db.session.query(Favorites).filter_by(videoId=videoId).first() == None
-                doIgnore   = db.session.query(Ignore).filter_by(videoId=videoId).first() == None
                 checkStats = stat_checker(videoId=videoId)
                 try:
                     checkComments = comment_counter(videoId=videoId) != False
@@ -254,8 +267,7 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
                     currentBand = Albums (
                       videoId=videoId, nextToken=nextToken,
                       genre=dunderSearch.upper(), videoTitle=videoTitle,
-                      topComment=comment_counter(videoId=videoId),
-                      isFavorite='')
+                      topComment=comment_counter(videoId=videoId))
 
                     db.session.add(currentBand)
                     db.session.commit()

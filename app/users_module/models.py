@@ -1,36 +1,96 @@
 from flask_login import UserMixin
-from app import db
+from app import db, redis_server
+
 import datetime
 
-class User(db.Model, UserMixin):
+
+class Base(db.Model):
+
+    __abstract__ = True
+
+    id            = db.Column(db.Integer, primary_key=True)
+    date_created  = db.Column(db.DateTime,  default=db.func.current_timestamp())
+    date_modified = db.Column(db.DateTime,  default=db.func.current_timestamp(),
+                                           onupdate=db.func.current_timestamp())
+class User(Base, UserMixin):
+
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    active = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
 
-    # User authentication information. The collation='NOCASE' is required
-    # to search case insensitively when USER_IFIND_MODE is 'nocase_collation'.
-    email = db.Column(db.String(255), nullable=False, unique=True)
-    email_confirmed_at = db.Column(db.DateTime())
-    password = db.Column(db.String(255), nullable=False, server_default='')
+    # Required
+    active        = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
+    username      = db.Column(db.String(100), nullable=True, unique=True)
+    email         = db.Column(db.String(255), nullable=False, unique=True)
+    password      = db.Column(db.String(255), nullable=False, \
+                    server_default='{0:s}'.format(str(redis_server.get('USER_PASS_DEFAULT').decode('utf-8'))))
+    # Optional
+    first_name    = db.Column(db.String(100), nullable=True, server_default='')
+    last_name     = db.Column(db.String(100), nullable=True, server_default='')
+    # Relational databases
+    favorites     = db.relationship('Favorites')
+    ignore        = db.relationship('Ignore')
+    comments      = db.relationship('Comments')
 
-    # User information
-    first_name = db.Column(db.String(100), nullable=True, server_default='')
-    last_name = db.Column(db.String(100), nullable=True, server_default='')
-    username = db.Column(db.String(100), nullable=True, server_default='')
-    # Define the relationship to Role via UserRoles
-    roles = db.relationship('Role', secondary='user_roles')
+    def __repr__(self):
+        return 'Username: {0:s} | Email: {1:s}'.format(self.username, self.email)
 
-    # Define the Role data-mode
-class Role(db.Model):
-    __tablename__ = 'roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(50), unique=True)
+class Ignore(Base):
+    __tablename__ = 'ignore'
 
-    # Define the UserRoles association table
-class UserRoles(db.Model):
-    __tablename__ = 'user_roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
-    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
-db.create_all()
-db.session.commit()
+
+    videoId       = db.Column(db.String(100), unique=True)
+    videoTitle    = db.Column(db.String(500))
+
+    # Parent for relational
+    user = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __init__(self, videoId, videoTitle):
+        self.videoId = videoId
+        self.videoTitle = videoTitle
+
+    def __repr__(self):
+        return 'VideoID: {0:s} | VideoTitle: {1:s}'.format(self.videoId, self.videoTitle)
+
+
+class Favorites(Base):
+    __tablename__ = 'favorites'
+
+
+    videoId       = db.Column(db.String(100), unique=True)
+    videoTitle    = db.Column(db.String(500))
+    videoComments = db.Column(db.String(500), server_default='No Comments')
+    # Parent for relational
+    user          = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __init__(self, videoId, videoTitle):
+        self.videoId    = videoId
+        self.videoTitle = videoTitle
+
+    def __repr__(self):
+        return 'VideoID: {0:s} | VideoTitle: {1:s}'.format(self.videoId, self.videoTitle)
+
+
+class Comments(Base):
+    __tablename__ = 'comments'
+
+
+    word          = db.Column(db.String(500))
+
+    # noword or exciter
+    define        = db.Column(db.String(500))
+
+    # Parent for relational
+    user          = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __init__(self, commentWord, define):
+        self.commentWord = commentWord
+        self.define      = define
+
+    def __repr__(self):
+        return 'Type: {0:s} Word: {1:s}'.format(self.define, self.commentWord)
+
+
+
+
+
+
+
