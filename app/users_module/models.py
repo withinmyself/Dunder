@@ -20,10 +20,9 @@ class User(db.Model, UserMixin):
 
     # Required
     active        = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
-    username      = db.Column(db.String(100), nullable=True, unique=True)
-    email         = db.Column(db.String(255), nullable=False, unique=True)
-    password      = db.Column(db.String(255), nullable=False, \
-                    server_default='{0:s}'.format(str(redis_server.get('USER_PASS_DEFAULT').decode('utf-8'))))
+    username      = db.Column(db.String(100), nullable=True)
+    email         = db.Column(db.String(255), nullable=False)
+    password      = db.Column(db.String(255), nullable=False, server_default='dunder')
     # Optional
     first_name    = db.Column(db.String(100), nullable=True, server_default='')
     last_name     = db.Column(db.String(100), nullable=True, server_default='')
@@ -39,7 +38,7 @@ class Ignore(Base):
     __tablename__ = 'ignore'
 
 
-    videoId       = db.Column(db.String(100), unique=True)
+    videoId       = db.Column(db.String(100))
     videoTitle    = db.Column(db.String(500))
 
     # Parent for relational
@@ -57,7 +56,7 @@ class Favorites(Base):
     __tablename__ = 'favorites'
 
 
-    videoId       = db.Column(db.String(100), unique=True)
+    videoId       = db.Column(db.String(100))
     videoTitle    = db.Column(db.String(500))
     videoComments = db.Column(db.String(500), server_default='No Comments')
     # Parent for relational
