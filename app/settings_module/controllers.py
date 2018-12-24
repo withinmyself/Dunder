@@ -3,9 +3,9 @@ from flask import Blueprint, request, render_template, \
                   jsonify
 from flask_login import login_required
 
-from app import db, redis_server
+from app import db, redis_server, login_manager
 from app.users_module.models import Ignore, Favorites
-from app.users_module.controllers import login_manager, current_user
+from app.users_module.controllers import current_user
 from app.settings_module.settings_functions import *
 from app.search_module.search_functions import random_genre
 from app.search_module.models import Albums

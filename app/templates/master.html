@@ -39,16 +39,14 @@
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon">
-            {% if current_user.is_authenticated %}
-            <h4 style="text-align: left; float:left; font-family: 'Courier New', Courier, monospace;color: rgb(255, 157, 0);">{{ current_user.name }} </h4> <h4 style="text-align: right; float:right; font-family: 'Courier New', Courier, monospace;color: rgb(255, 157, 0);">{{ current_user.email }}</h4>
-        {% endif %}</span>
+        </span>
         </button>
 
 
         <div class="collapse navbar-collapse" id="navbarResponsive" style="background-color: black;">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="{{ url_for( 'search.dunderbands')}}">Home
+              <a class="nav-link" href="{{ url_for( 'search.index')}}">Home
 
               </a>
             </li>
@@ -72,7 +70,10 @@
     {% block content %}
     {% endblock%}
 
-    <!-- Page Content -->
+    {% if current_user.is_authenticated %}
+    				<h4 style="text-align: left;margin-left: 38%;font-family: 'Courier New', Courier, monospace;color: rgb(255, 157, 0);">
+    				Logged In As {{ '{0}'.format(current_user.username) }} </h4>
+    				{% endif %}
 
 
     <!-- Bootstrap core JavaScript -->

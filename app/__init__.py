@@ -5,6 +5,10 @@ from flask import Flask, render_template
 
 from flask_sqlalchemy import SQLAlchemy
 
+from flask_login import LoginManager
+
+from flask_bootstrap import Bootstrap
+
 
 app = Flask(__name__)
 
@@ -12,8 +16,13 @@ app.config.from_object('config')
 
 db = SQLAlchemy(app)
 
+Bootstrap(app)
+
 redis_server = redis.Redis(host='127.0.0.1', port='6379')
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'users.login'
 
 # Import a module / component using its blueprint handler variable (mod_auth)
 from app.search_module.controllers import search_routes as search_bp
