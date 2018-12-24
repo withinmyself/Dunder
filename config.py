@@ -7,7 +7,7 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Postgres database link stored in Redis
-if SQLALCHEMY_DATABASE_URI == None:
+if os.environ['DATABASE_URL'] == None:
     SQLALCHEMY_DATABASE_URI = redis_server.get('SQL_DATABASE').decode('utf-8')
 else:
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
