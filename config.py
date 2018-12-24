@@ -6,6 +6,11 @@ DEBUG = True
 import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
+if os.getenv('REDISTOGO_URL') == None:
+    redis_server = redis.Redis(host='0.0.0.0', port='6379')
+else:
+    redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+    redis_server = redis.from_url(redis_url)
 # Postgres database link stored in Redis
 if os.environ['DATABASE_URL'] == None:
     SQLALCHEMY_DATABASE_URI = redis_server.get('SQL_DATABASE').decode('utf-8')

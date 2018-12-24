@@ -18,11 +18,6 @@ db = SQLAlchemy(app)
 
 Bootstrap(app)
 
-if os.getenv('REDISTOGO_URL') == None:
-    redis_server = redis.Redis(host='0.0.0.0', port='6379')
-else:
-    redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-    redis_server = redis.from_url(redis_url)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
