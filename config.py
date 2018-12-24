@@ -6,11 +6,6 @@ DEBUG = True
 import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-if os.getenv('REDISTOGO_URL') == None:
-    redis_server = redis.Redis(host='0.0.0.0', port='6379')
-else:
-    redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-    redis_server = redis.from_url(redis_url)
 # Postgres database link stored in Redis
 if os.environ['DATABASE_URL'] == None:
     SQLALCHEMY_DATABASE_URI = redis_server.get('SQL_DATABASE').decode('utf-8')
@@ -26,10 +21,12 @@ CSRF_ENABLED     = True
 
 # Use a secure, unique and absolutely secret key for
 # signing the data.
-CSRF_SESSION_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
-
-# Secret key for signing cookies
-SECRET_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
+if os.getenv('CSRF_KEY') == None:
+    CSRF_SESSION_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
+    SECRET_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
+else:
+    CSRF_SESSION_KEY = os.getenv('CSRF_KEY')
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
 # Flask-Mail SMTP server settings
 MAIL_SERVER = 'smtp.gmail.com'
