@@ -12,9 +12,11 @@ class Base(db.Model):
     date_created  = db.Column(db.DateTime,  default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,  default=db.func.current_timestamp(),
                                            onupdate=db.func.current_timestamp())
-class User(Base, UserMixin):
+class User(db.Model, UserMixin):
 
     __tablename__ = 'users'
+
+    id            = db.Column(db.Integer, primary_key=True)
 
     # Required
     active        = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
