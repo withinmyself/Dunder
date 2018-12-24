@@ -6,12 +6,11 @@ DEBUG = True
 import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-redis_server = redis.Redis(os.environ['REDISTOGO_URL'])
-
 # Postgres database link stored in Redis
-
-SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-#SQLALCHEMY_DATABASE_URI = redis_server.get('SQL_DATABASE').decode('utf-8')
+if SQLALCHEMY_DATABASE_URI == None:
+    SQLALCHEMY_DATABASE_URI = redis_server.get('SQL_DATABASE').decode('utf-8')
+else:
+    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Look into later
