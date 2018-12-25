@@ -3,15 +3,12 @@
 
 <!-- Displays messages sent from Python using flash() -->
 {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li style.color="red">{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
+   {% if messages %}
+      {% for message in messages %}
+         <p style="color: greenyellow; background-color: black; text-align:center;">{{ message }}</p>
+      {% endfor %}
+   {% endif %}
 {% endwith %}
-{% block body %}{% endblock %}
 
 
 
@@ -31,6 +28,7 @@
     <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('2018') }}"/>
     <input type="hidden" name="publishedAfter"  value="{{ publishedAfter | default ('2016') }}"/>
     <input type="hidden" name="stayOrGo"        value="stay" />
+    <input type="hidden" name="topComment"      value="{{ currentBand.topComment }}"/>
   <div class="favorites"><input type="submit" id="fav" value="Click To Add As Favorite"
     style="color:whitesmoke;background-color:darkslategrey"
     onmouseover="document.getElementById('fav').style.background='black';
@@ -91,6 +89,6 @@
                     document.getElementById('anchor').style.color='#0056B3'"
         onmouseout="document.getElementById('anchor').style.background='darkslategrey';
                     document.getElementById('anchor').style.color='whitesmoke'"></div>
-  </form><p>If you click "Anchor And Pivot" your next search result will be directly associated with this video.</p></div>
+  </form><p style="color: greenyellow; background-color: black;">If you click "Anchor And Pivot" your next search result will be directly associated with this video.</p></div>
 
 {% endblock %}

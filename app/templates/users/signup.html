@@ -11,7 +11,7 @@ signup
 {% with messages = get_flashed_messages() %}
    {% if messages %}
       {% for message in messages %}
-         <p style="color: greenyellow; background-color: black;">{{ message }}</p>
+         <p style="color: greenyellow; background-color: black; text-align: center;">{{ message }}</p>
       {% endfor %}
    {% endif %}
 {% endwith %}

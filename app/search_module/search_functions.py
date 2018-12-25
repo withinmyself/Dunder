@@ -237,7 +237,7 @@ def criteria_crunch (dunderSearch, publishedBefore=None, publishedAfter=None,
             nextToken = None
         else:
             pass
-        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 40:
+        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 35:
             redis_server.set('LOOP', 0)
             redis_server.set('WHILE', 'NOGO')
             print('No Results Were Found - It Happens')

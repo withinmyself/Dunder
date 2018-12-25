@@ -27,7 +27,8 @@ login
       {{ wtf.form_field(form.remember) }}
       <button class="btn btn-lg btn-primary btn-block" type="submit">login</button>
       </form>
-      <p>If you don't have a username yet click on <a href="{{ url_for('users.signup') }}">sign-up</a>.</p>
+      <p>If you don't have a username yet click on <a href="{{ url_for('users.signup') }}">sign-up</a></p>
+      <p>If you've had enough of this nonsense and want to exit the premises click on <a href="{{ url_for('users.logout') }}">logout</p>
 
         </div>
 

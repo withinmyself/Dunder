@@ -169,6 +169,34 @@
   text-align:center;
 }
 
+.faq-grid {
+  display: grid;
+  grid-template-columns: 10% 10% [start2] 30% [end2] 30%  [start3] 10% [end3] 10% ;
+  grid-template-rows: auto;
+  justify-items: center;
+  justify-content: center;
+}
+.faq7 {
+  grid-column-start: start2;
+  grid-column-end: start3;
+  text-align:center;
+}
+
+.faq-grid p {
+  margin-top: 2%;
+  font-align: right;
+  font-family: 'Josefin Sans' sans-serif;
+  padding-left: 5px;
+  padding-right: 5px;
+  color:whitesmoke;
+  background-color: darkslategrey;
+  border-top: 3px solid darkred;
+  border-right: 3px solid darkred;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+}
+
+
 /*!
  * Settings.html grid and grid items
  */
@@ -204,6 +232,24 @@
 .settings a{
   font-align: center;
 }
+
+/*!
+ * Misc. Formatting
+ */
+.first_comment p {
+  font-family: 'Josefin Sans' sans-serif;
+  text-align: center;
+  padding-left: 5px;
+  padding-right: 5px;
+  color:whitesmoke;
+  background-color: darkslategrey;
+  border-top: 3px solid darkred;
+  border-right: 3px solid darkred;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+}
+
+
 
 
 /*!

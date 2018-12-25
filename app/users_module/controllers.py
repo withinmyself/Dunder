@@ -60,4 +60,5 @@ def signup():
 @login_required
 def logout():
     logout_user()
-    return render_template('search/dunderbands.html')
+    flash("You Have Logged Off - If You Wish To Use DunderBands You Must Provide Your Username & Password")
+    return redirect('users/login')

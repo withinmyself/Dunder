@@ -32,9 +32,16 @@
   <body>
 
 
+
     <nav class="navbar navbar-expand-lg  static-top" style="background-color: black">
       <div class="container" style="background-color: black; color: darkred; width: 100%" >
-        <a class="navbar-brand" href="#">DunderBands</a>
+
+        <a class="navbar-brand" href="{{ url_for( 'users.login')}}">
+          {% if current_user.is_authenticated %}
+                  <p style="color: greenyellow; background-color: black; text-align: center;">
+                  Logged In As {{ '{0}'.format(current_user.username) }} </p>
+                  {% endif %}
+        </a>
 
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,13 +72,10 @@
 
       </div>
     </nav>
-
-    {% if current_user.is_authenticated %}
-    				<p style="text-align: left;font-family: 'Courier New', Courier, monospace;color: rgb(255, 157, 0);">
-    				Logged In As {{ '{0}'.format(current_user.username) }} </p>
-    				{% endif %}
     {% block content %}
     {% endblock%}
+
+
 
 
 
