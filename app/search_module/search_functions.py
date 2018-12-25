@@ -178,28 +178,30 @@ def comment_counter (videoId):
 
 # The majority of our logic operators, error checking,
 # and YouTube search results.
-def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
+def criteria_crunch (dunderSearch, publishedBefore=None, publishedAfter=None,
                      nextToken=None, dunderAnchor=None):
 
     if DEBUG == True:
         print("CRITERIA_CRUNCH")
     else:
         pass
+    redis_server.set('LOOP', 0)
     redis_server.set('WHILE', 'GO')
     while True:
+        redis_server.incr('LOOP')
         if str(redis_server.get('WHILE').decode('utf-8')) == 'NOGO':
             print('Redis is a NOGO')
             return False
         else:
             pass
         try:
-            publishedBefore = year_selecter(year=publishedBefore)
+            published_before = year_selecter(publishedBefore)
         except ValueError:
             print('Default Before')
             publishedBefore = year_selecter(year=2018)
 
         try:
-            publishedAfter = year_selecter(year=publishedAfter)
+            published_after = year_selecter(publishedAfter)
         except ValueError:
             print('Default After')
             publishedAfter = year_selecter(year=2016)
@@ -208,35 +210,43 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
                         dunderSearch,
                         token=nextToken,
                         related_video=dunderAnchor,
-                        published_before=publishedBefore,
-                        published_after=publishedAfter)
+                        published_before=published_before,
+                        published_after=published_after)
         try:
             nextToken = searchResults['nextPageToken']
         except KeyError:
-            redis_server.incr('AROUND')
-            print('KeyError with nextToken - breaking loop')
-            if int(str(redis_server.get('AROUND').decode('utf-8'))) == 1:
-                dunderSearch = dunderSearch[int(str(redis_server.get('PREFIX').decode('utf-8')))+1:len(dunderSearch)]
-                print(dunderSearch)
-                nextToken = None
-            else:
-                pass
-            if int(str(redis_server.get('AROUND').decode('utf-8'))) == 2:
-                dunderSearch = dunderSearch[:-int(str(redis_server.get('COUNTRY').decode('utf-8')))-1]
-                print(dunderSearch)
-                nextToken = None
-            else:
-                pass
-            if int(str(redis_server.get('AROUND').decode('utf-8'))) == 3:
-                redis_server.set('WHILE', 'NOGO')
-                redis_server.set('AROUND', 0)
-                return False
-            else:
-                pass
+            nextToken = None
+        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 10:
+            print('Removing Prefix And Continuing Search')
+            dunderSearch = dunderSearch[int(str(redis_server.get('PREFIX').decode('utf-8')))+1:len(dunderSearch)]
+            print(dunderSearch)
+            nextToken = None
+        else:
+            pass
+        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 20:
+            print('Removing Country And Continuing Search')
+            dunderSearch = dunderSearch[:-int(str(redis_server.get('COUNTRY').decode('utf-8')))-1]
+            print(dunderSearch)
+            nextToken = None
+        else:
+            pass
+        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 25:
+            print('Removing Prefix And Country - Continuing Search')
+            dunderSearch = dunderSearch[int(str(redis_server.get('PREFIX').decode('utf-8')))+1:-int(str(redis_server.get('COUNTRY').decode('utf-8')))-1]
+            print(dunderSearch)
+            nextToken = None
+        else:
+            pass
+        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 40:
+            redis_server.set('LOOP', 0)
+            redis_server.set('WHILE', 'NOGO')
+            print('No Results Were Found - It Happens')
+            return False
+        else:
+            pass
         for video in searchResults.get('items', []):
             videoId = video['id']['videoId']
             videoTitle = video['snippet']['title']
-
             isVideo = video['id']['kind'] == 'youtube#video'
             isClean = title_clean(video['snippet']['title'],
                                   includeSearch=dunderSearch)

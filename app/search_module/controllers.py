@@ -57,10 +57,14 @@ def dunderbands():
             dunderSearch         = string_clean(dunderRequest, 'stringNeededUpper')
             publishedBefore      = request.form['publishedBefore']
             publishedAfter       = request.form['publishedAfter']
+            print('{0} | {1}'.format(publishedBefore, publishedAfter))
             try:
                 nextToken        = request.form['nextToken']
             except KeyError:
                 nextToken        = None
+            db.session.query(Albums).delete()
+            db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
+            db.session.commit()
             currentBand          = criteria_crunch(
                 dunderSearch     = dunderSearch,
                 publishedBefore  = publishedBefore,
