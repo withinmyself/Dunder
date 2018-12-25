@@ -3,9 +3,9 @@ import os
 # Statement for enabling the development environment
 DEBUG = True
 
-#redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-#redis_server = redis.from_url(redis_url)
-redis_server = redis.Redis(host='0.0.0.0', port='6379')
+redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+redis_server = redis.from_url(redis_url)
+#redis_server = redis.Redis(host='0.0.0.0', port='6379')
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -17,20 +17,18 @@ except KeyError:
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-# Look into later
-# THREADS_PER_PAGE = 2
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
 CSRF_ENABLED     = True
 
 # Use a secure, unique and absolutely secret key for
 # signing the data.
-#try:
- #   CSRF_SESSION_KEY = os.getenv('CSRF_KEY')
-  #  SECRET_KEY = os.getenv('SECRET_KEY')
-#except KeyError:
-SECRET_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
-CSRF_SESSION_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
+
+CSRF_SESSION_KEY = os.getenv('CSRF_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
+# except KeyError:
+# SECRET_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
+# CSRF_SESSION_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
 # Flask-Mail SMTP server settings
 MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 587
