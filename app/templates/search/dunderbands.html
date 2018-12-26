@@ -3,50 +3,159 @@
 
 <!-- Display messages sent from Python using flash() -->
 {% with messages = get_flashed_messages() %}
-  {% if messages %}
-  <div class="flask-flash">
-    <ul class=flashes>
-    {% for message in messages %}
-      <li style.color="red">{{ message }}</li>
-    {% endfor %}
-    </ul>
-    </div>
-  {% endif %}
+   {% if messages %}
+      {% for message in messages %}
+         <p style="color: greenyellow; background-color: black; text-align:center;">{{ message }}</p>
+      {% endfor %}
+   {% endif %}
 {% endwith %}
-{% block body %}{% endblock %}
 
-<div class="topgrid">
-  <div class="grid-item item-1"></div>
-  <div class="grid-item item-2"><img src="{{ url_for('static', filename = 'img/dunderbands.png') }}"></div>
-  <div class="grid-item item-3"></div>
-  <div class="grid-item item-3"></div>
-  <div class="grid-item item-4">
 
-<form action="{{ url_for('search.dunderbands') }}" method="POST">
-  <div class="search">
-    <input placeholder="Dunder Search" type="text"   id="search" style ="background: darkslategrey; color: darkred" name="dunderSearch" value="{{ dunderRandom.upper() }}">
+<!-- Start of main CSS grid -->
+<div class="dunder-grid"><div class="grid-item dunder-1"></div>
+
+  <!-- DunderBands Image -->
+  <div class="grid-item dunder-2"><a href="{{ url_for( 'search.dunderbands')}}">
+  <img src="{{ url_for('static', filename = 'img/dunderbands.png') }}"></a></div>
+  <div class="grid-item dunder-3"></div>
+  <div class="grid-item dunder-3"></div>
+
+  <!-- Start of form -->
+  <div class="grid-item dunder-4">
+    <form action="{{ url_for('search.dunderbands') }}" method="POST">
+
+    <select name="prefix"
+      id="prefix" style ="background: darkslategrey; color: whitesmoke; float:left;">
+      <option value=" " selected>Prefix</option>
+      <option value="Acid">Acid</option>
+      <option value="Ambient">Ambient</option>
+      <option value="Art">Art</option>
+      <option value="Atmospheric">Atmospheric</option>
+      <option value="Chill">Chill</option>
+      <option value="Dark">Dark</option>
+      <option value="Fusion">Fusion</option>
+      <option value="Instrumental">Instrumental</option>
+      <option value="Jam">Jam</option>
+      <option value="Liquid">Liquid</option>
+      <option value="Post">Post</option>
+      <option value="Math">Math</option>
+      <option value="Orchestral">Orchestral</option>
+      <option value="Psychedelic">Psychedelic</option>
+      <option value="Smooth">Smooth</option>
+      <option value="Southern">Southern</option>
+      <option value="Technical">Technical</option>
+      <option value="Underground">Underground</option>
+     </select>
+
+    <select name="subgenre" id="subgenre"
+        style ="background: darkslategrey; color: whitesmoke;" >
+              <option value=" " selected>Sub-Genre</option>
+              <option value="Acoustic">Acoustic</option>
+              <option value="Alternative">Alternative</option>
+              <option value="Blackgaze">Blackgaze</option>
+              <option value="Black">Black</option>
+              <option value="Breakcore">Breakcore</option>
+              <option value="Chillwave">Chillwave</option>
+              <option value="Darksynth">Darksynth</option>
+              <option value="Doom">Doom</option>
+              <option value="Electric">Electric</option>
+              <option value="Experimental">Experimental</option>
+              <option value="Folk">Folk</option>
+              <option value="Gothic">Gothic</option>
+              <option value="Indie">Indie</option>
+              <option value="Minimilistic">Minimilistic</option>
+              <option value="Shoegaze">Shoegaze</option>
+              <option value="Speedcore">Speedcore</option>
+              <option value="Steampunk">Steampunk</option>
+              <option value="Thrash">Thrash</option>
+              </select>
+
+              <select name="genre" id="genre"
+                  style ="background: darkslategrey; color: whitesmoke;" >
+              <option value=" " selected>Genre</option>
+              <option value="Bluegrass">Bluegrass</option>
+              <option value="Blues">Blues</option>
+              <option value="Classical">Classical</option>
+              <option value="Country">Country</option>
+              <option value="Dubstep">Dubstep</option>
+              <option value="Electronica">Electronica</option>
+              <option value="Funk">Funk</option>
+              <option value="Hip-Hop">Hip-Hop</option>
+              <option value="Industrial">Industrial</option>
+              <option value="Jazz">Jazz</option>
+              <option value="Metal">Metal</option>
+              <option value="Pop">Pop</option>
+              <option value="Punk">Punk</option>
+              <option value="Reggae">Reggae</option>
+              <option value="Rock">Rock</option>
+              <option value="Ska">Ska</option>
+              <option value="Synth">Synth</option>
+              <option value="Trance">Trance</option>
+          </select>
+
+          <select name="country" id="country"
+              style ="background: darkslategrey; color: whitesmoke;" >
+          <option value=" " selected>Country</option>
+          <option value="Africa">Africa</option>
+          <option value="Australia">Australia</option>
+          <option value="Austria">Austria</option>
+          <option value="Brazil">Brazil</option>
+          <option value="Britain">Britain</option>
+          <option value="Canada">Canada</option>
+          <option value="China">China</option>
+          <option value="Egypt">Egypt</option>
+          <option value="Finland">Finland</option>
+          <option value="France">France</option>
+          <option value="Germany">Germany</option>
+          <option value="Greece">Greece</option>
+          <option value="Hungary">Hungary</option>
+          <option value="India">India</option>
+          <option value="Israel">Israel</option>
+          <option value="Italy">Italy</option>
+          <option value="Japan">Japan</option>
+          <option value="Mexico">Mexico</option>
+          <option value="Netherlands">Netherlands</option>
+          <option value="New Zealand">New Zealand</option>
+          <option value="Norway">Norway</option>
+          <option value="Poland">Poland</option>
+          <option value="Russia">Russia</option>
+          <option value="Spain">Spain</option>
+          <option value="Sweden">Sweden</option>
+          <option value="Switzerland">Switzerland</option>
+          <option value="United States">United States</option>
+
+
+      </select>
+
+      <select name="publishedAfter" id="after"
+          style ="background: darkslategrey; color: whitesmoke;float:right;" >
+      <option value="2016" selected>Starting From</option>
+      <option value="2015">2015</option>
+      <option value="2014">2014</option>
+      <option value="2013">2013</option>
+      <option value="2012">2012</option>
+      <option value="2011">2011</option>
+      <option value="2010">2010</option>
+      <option value="2009">2009</option>
+      <option value="2008">2008</option>
+      <option value="2007">2007</option>
+      <option value="2006">2006</option>
+      <option value="2005">2005</option>
+      </select>
+     <input type="hidden" name="publishedBefore" value="2018"
+    <!-- Search submit button -->
+    <div class="hunt"><input type="submit"
+      value="HUNT" id="hunt" style ="background:darkslategrey; color:whitesmoke; text-shadow: 2px 2px black"/></div>
+    </form>
   </div>
-<!-- Before/After Year input -->
-  <div class="year">
-    <input value="2017" type="text"  id="after" style ="background:darkslategrey; color:darkred" name="publishedAfter"/>
-    <input value="2018" type="text"  id="before" style ="background:darkslategrey; color:darkred"name="publishedBefore"/>
-  </div>
-<!-- Search submit button -->
-  <div class="hunt">
-    <input type="submit" value="HUNT" id="hunt" style ="background:darkslategrey; color:darkred"/>
-  </div>
-</form>
 </div>
-
-<div class="grid-item item-5"></div>
-<div class="grid-item item-6"></div>
-<div class="settings">
-<div class="grid-item item-6"><a href="{{ url_for('settings.settings') }}">Change Search Criteria</a><br/>
-<a href="javascript:history.go(0)">Randomize Genres & Countries</a></div></div>
-<div class="grid-item item-7"></div>
-</div>
-</div>
+<p style="color: greenyellow; background-color: black; text-align: center;">DunderBands is a Guided Search Engine that seeks underrated underground albums that are
+  considered masterpieces by immediate fans.<br/>
+  The search string will begin to change if no result is found quickly.  It will drop prefix first then it will restore the original search string and only drop country<br/>
+  Then it will drop both prefix and country leaving only subgenre and genre. The quicker the find, the better the album. <br/>If a result still can't be found
+  it will ask that you double your efforts.</p>
 
 
+<!-- End CSS Grid -->
 
 {% endblock %}

@@ -5,8 +5,8 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="Alt Search Engine For Underground Underrated Artists">
+    <meta name="author" content="E.T. Deubner">
 
     <link rel="apple-touch-icon" sizes="57x57" href="{{ url_for('static', filename='img/apple-icon-57x57.png') }}">
     <link rel="apple-touch-icon" sizes="60x60" href="{{ url_for('static', filename='img/apple-icon-60x60.png') }}">
@@ -24,25 +24,37 @@
     <title>DunderBands</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="{{ url_for('static', filename='bootstrap/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='bootstrap/vendor/bootstrap/css/customboot.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='bootstrap/custom-css/custom-css.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/customboot.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='custom-css/custom-css.css') }}" rel="stylesheet">
   </head>
 
   <body>
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top" style="background-color: black">
-      <div class="container" style="background-color: black">
-        <a class="navbar-brand" href="#">DunderBands</a>
+
+
+    <nav class="navbar navbar-expand-lg  static-top" style="background-color: black">
+      <div class="container" style="background-color: black; color: darkred; width: 100%" >
+
+        <a class="navbar-brand" href="{{ url_for( 'users.login')}}">
+          {% if current_user.is_authenticated %}
+                  <p style="color: greenyellow; background-color: black; text-align: center;">
+                  Logged In As {{ '{0}'.format(current_user.username) }} </p>
+                  {% endif %}
+        </a>
+
+
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
+          <span class="navbar-toggler-icon">
+        </span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
+
+
+        <div class="collapse navbar-collapse" id="navbarResponsive" style="background-color: black;">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="{{ url_for( 'search.dunderbands')}}">Home
-                <span class="sr-only">(current)</span>
+              <a class="nav-link" href="{{ url_for( 'search.index')}}">Home
+
               </a>
             </li>
             <li class="nav-item">
@@ -52,26 +64,59 @@
               <a class="nav-link" href="{{ url_for( 'settings.favorites')}}">Favorites</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Contact</a>
+              <a class="nav-link" href="{{ url_for( 'settings.settings')}}">Settings</a>
             </li>
           </ul>
         </div>
+
+
       </div>
     </nav>
-
     {% block content %}
     {% endblock%}
 
-    <!-- Page Content -->
+
+
+
 
 
     <!-- Bootstrap core JavaScript -->
-    <script src="{{ url_for('static', filename='bootstrap/custom-js/custom-js.js') }}"></script>
+    <script src="{{ url_for('static', filename='custom-js/custom-js.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
     			  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     			  crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
   </body>
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <ul class="list-inline text-center">
+            <li class="list-inline-item">
+              <a href="https://twitter.com/wasted_creator">
+                <span class="fa-stack fa-lg">
+                  <i class="fa fa-circle fa-stack-2x"></i>
+                  <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                </span>
+              </a>
+            </li>
+
+            <li class="list-inline-item">
+              <a href="https://github.com/withinmyself">
+                <span class="fa-stack fa-lg">
+                  <i class="fa fa-circle fa-stack-2x"></i>
+                  <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                </span>
+              </a>
+            </li>
+          </ul><br>
+          <h4 class="copyright">Copyright &copy; Evan T. Deubner 2018</h4>
+        </div>
+      </div>
+    </div>
+  </footer>
+
 
 </html>

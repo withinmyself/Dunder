@@ -2,28 +2,24 @@
 {% block content %}
 
 <div class="about-grid">
-  <div class="about-item item1"></div>
-  <div class="about-item item2"></div>
-  <div class="about-item item3"><img src="{{ url_for('static', filename= 'img/goodevanpic.png') }}"></div>
-  <div class="about-item item4"><img src="{{ url_for('static', filename= 'img/b-card.png')}}"></div>
-  <div class="about-item item5"></div>
-  <div class="about-item item6"></div>
-  <div class="about-item item7"><p>I'm an IT professional with over 13 years experience.  When I was 19 I started working for a pharmaceutical
-    software company called QS1 Data Systems. I was tasked with installing, upgrading and maintaining servers, workstations and networks
-    at hospitals and pharmacies accross the Midwest.</p>
-    <p>
-    For the past 3 years I have been studying various programming languages in an effort to switch career paths.  I've always been fascinated
+  <div class="about-item about1"></div>
+  <div class="about-item about2"></div>
+  <div class="about-item about3"><img src="{{ url_for('static', filename= 'img/goodevanpic.png') }}"></div>
+  <div class="about-item about4"><img src="{{ url_for('static', filename= 'img/b-card.png')}}"></div>
+  <div class="about-item about5"></div>
+  <div class="about-item about6"></div>
+  <div class="about-item about7"><p>I'm an IT professional with over 13 years experience installing, upgrading and maintaining servers,
+     workstations and networks at hospitals and pharmacies across the Midwest.</p>
+    <p>For the past 3 years I have been learning various programming languages in an effort to switch career paths.  I've always been fascinated
     with programmers and coding languages and I can finally say with certainty that I am a programmer.  I still have
-    many milestones to reach but I realize I'll be learning new things about code until the day I die.</p>
-    <p>
-    I suppose this website has now become my Portfolio.  At its center is an <a href="{{ url_for('search.dunderbands') }}">App</a> I've been working on called <a href="{{ url_for('search.dunderbands') }}">DunderBands</a>
-    which I explain in great detail <a href="{{ url_for('settings.about') }}">here</a>.  I'm hosting this site myself using
-    <a href ="https://www.nginx.com/">Nginx</a>/<a href="https://gunicorn.org/">Gunicorn</a>/<a href="http://flask.pocoo.org/">Flask</a>.  All the details regarding that can be found here.
-    And finally if you follow this <a href="www.google.com">link</a> I will share my journey with you into the mad mad world of code.  A journey I almost gave up on more than a couple times.  But it wasn't all doom,
-  gloom.  I managed to write a few well received Quora posts and even a couple Medium articles regarding programming that I'm quite proud of.   </p>  </div>
-
-
-
+    many milestones to reach but I realize I'll be learning new things about code for the rest of my life.
+</p>
+    <p>This website has now become my Portfolio as well as my project.  At its center is an App called
+    <a href="{{ url_for('search.dunderbands') }}">DunderBands</a>
+    which I explain in great detail <a href="{{ url_for('settings.faq') }}">here</a>.  This site is hosted by <a href ="https://www.heroku.com/">Heroku</a>.
+    I use Python/Flask for the Framework.  PostgreSQL for the Database.  Redis for Secret Keys and API Tokens.  And Heroku is using
+    <a href="https://gunicorn.org/">Gunicorn</a> to host the site.
+ </p>  </div>
 </div>
 
 {% endblock %}

@@ -1,0 +1,35 @@
+{% extends "master.html"  %}
+{% import "bootstrap/wtf.html" as wtf%}
+
+{% block title %}
+login
+{% endblock %}
+
+
+
+
+{% block content %}
+<!-- Display messages sent from Python using flash() -->
+{% with messages = get_flashed_messages() %}
+   {% if messages %}
+      {% for message in messages %}
+         <p style="color: greenyellow; background-color: black; text-align: center;">{{ message }}</p>
+      {% endfor %}
+   {% endif %}
+{% endwith %}
+  <div class="container">
+
+    <form class="form-signin" method="POST" action="/users/login">
+      <h2 class="form-signin-heading">Please Sign In</h2>
+      {{ form.hidden_tag() }}
+      {{ wtf.form_field(form.username) }}
+      {{ wtf.form_field(form.password) }}
+      {{ wtf.form_field(form.remember) }}
+      <button class="btn btn-lg btn-primary btn-block" type="submit">login</button>
+      </form>
+      <p>If you don't have a username yet click on <a href="{{ url_for('users.signup') }}">sign-up</a></p>
+      <p>If you've had enough of this nonsense and want to exit the premises click on <a href="{{ url_for('users.logout') }}">logout</p>
+
+        </div>
+
+{% endblock %}

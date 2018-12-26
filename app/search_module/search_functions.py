@@ -7,9 +7,12 @@ from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 
 from app.search_module.models import Albums
-from app.search_module.strings import noWords, genrePrefix, \
-     genreMain, countryOfOrigin
-from app.settings_module.models import Favorites, Ignore
+from app.search_module.strings import no_words, genrePrefix, \
+     genreMain, countryOfOrigin, my_exciters
+from app.users_module.models import Favorites, Ignore, Comments
+from app.users_module.controllers import current_user
+from app.settings_module.settings_functions import get_like_ratio, \
+     get_comments_needed, get_max_views, get_view_ratio
 from app import db, redis_server
 
 
@@ -25,6 +28,18 @@ DEBUG = True
 SEE_TITLES = False
 
 
+# Add words from lists to database.
+def word_sort():
+    for word in no_words:
+        new_word = Comments(word, 'noWord')
+        db.session.add(new_word)
+        db.session.commit()
+        db.session.close()
+    for excite in my_exciters:
+        new_excite = Comments(excite, 'exciter')
+        db.session.add(new_excite)
+        db.session.commit()
+        db.session.close()
 
 # Take four digit year. Return RFC3339 datetime object.
 def year_selecter(year):
@@ -66,9 +81,9 @@ def search_getter(q, max_results=1, token=None, location=None,
 # Pull stats to compare against.
 def stat_checker (videoId):
 
-    LIKE_RATIO=float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
-    VIEW_RATIO=float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
-    MAX_VIEWS=int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+    LIKE_RATIO = get_like_ratio()
+    VIEW_RATIO = get_view_ratio()
+    MAX_VIEWS  = get_max_views()
 
     if DEBUG == True:
         print("STAT_CHECKER")
@@ -110,105 +125,143 @@ def stat_checker (videoId):
 # from our list of desirable descriptives.
 def comment_counter (videoId):
 
-    MIN_COUNT = int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
+    MIN_COUNT = get_comments_needed()
     if DEBUG == True:
         print("COMMENT_COUNTER")
 
     wordsFound = 0
-    wordsToFind = ('amazing', 'speechless', 'fantastic',
-                   'incredible', 'masterpiece', 'breathtaking',
-                   'transcendental')
 
-    comments = YOUTUBE.commentThreads().list (part="snippet",
-                                              maxResults=100,
-                                              videoId=videoId,
-                                              textFormat="plainText"
-                                              ).execute()
+    comments = YOUTUBE.commentThreads().list (
+                                part="snippet",
+                                maxResults=100,
+                                videoId=videoId,
+                                textFormat="plainText"
+                                ).execute()
+
+    extra_words = db.session.query(Comments).filter_by(define='exciter').all()
+    for exciter in extra_words:
+        my_exciters.append('{0}'.format(exciter.commentWord))
+    my_best_exciters = list(set(my_exciters))
+
     try:
         for item in comments["items"]:
             comment = item["snippet"]["topLevelComment"]
             text = comment["snippet"]["textDisplay"]
             cleanTxt = re.sub(r'[.!,;?]', ' ', text).lower()
-
-            for word in wordsToFind:
+            for word in my_best_exciters:
                 wordsFound = wordsFound + cleanTxt.count(word)
-
-        # If MIN_COUNT is met, search through again and
-        # return one comment that includes our found words
-        if int(wordsFound) >= MIN_COUNT:
-            for item in comments["items"]:
-                comment = item["snippet"]["topLevelComment"]
-                text = comment["snippet"]["textDisplay"]
-                cleanTxt = re.sub(r'[.!,;?]', ' ', text).lower()
-                for word in wordsToFind:
-                    if cleanTxt.count(word) > 0:
-                        if len(text) > 500:
-                            return text[:450]
-                        else:
-                            return text
-        else:
-            print('Low Count')
-            return False
-
     except KeyError:
         print("KeyError - Comments Are Disabled")
         return False
+
+    if int(wordsFound) >= MIN_COUNT:
+        for item in comments["items"]:
+            comment = item["snippet"]["topLevelComment"]
+            text = comment["snippet"]["textDisplay"]
+            cleanTxt = re.sub(r'[.!,;?]', ' ', text).lower()
+            for word in my_best_exciters:
+                if cleanTxt.count(word) > 0:
+                    if len(text) > 500:
+                        return text[:450]
+                    else:
+                        return text
+    else:
+        print('Low Count')
+        return False
+
 
 
 
 
 # The majority of our logic operators, error checking,
 # and YouTube search results.
-def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
+def criteria_crunch (dunderSearch, publishedBefore=None, publishedAfter=None,
                      nextToken=None, dunderAnchor=None):
 
     if DEBUG == True:
         print("CRITERIA_CRUNCH")
     else:
         pass
-    try:
-        publishedBefore = year_selecter(year=publishedBefore)
-    except ValueError:
-            print("Missing Year For Published Before.  Allowing Default.")
+    redis_server.set('LOOP', 0)
+    redis_server.set('WHILE', 'GO')
+    while True:
+        redis_server.incr('LOOP')
+        if str(redis_server.get('WHILE').decode('utf-8')) == 'NOGO':
+            print('Redis is a NOGO')
+            return False
+        else:
+            pass
+        try:
+            published_before = year_selecter(publishedBefore)
+        except ValueError:
+            print('Default Before')
             publishedBefore = year_selecter(year=2018)
 
-    try:
-        publishedAfter = year_selecter(year=publishedAfter)
-    except ValueError:
-            print('Missing Year For Published After.  Allowing Default.')
+        try:
+            published_after = year_selecter(publishedAfter)
+        except ValueError:
+            print('Default After')
             publishedAfter = year_selecter(year=2016)
-
-    while True:
 
         searchResults = search_getter (
                         dunderSearch,
                         token=nextToken,
                         related_video=dunderAnchor,
-                        published_before=publishedBefore,
-                        published_after=publishedAfter)
-
+                        published_before=published_before,
+                        published_after=published_after)
         try:
             nextToken = searchResults['nextPageToken']
         except KeyError:
-            print('KeyError with nextToken - breaking loop')
-            break
-            return False
-            #
             nextToken = None
-
+        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 10:
+            print('Removing Prefix And Continuing Search')
+            dunderSearch = dunderSearch[int(str(redis_server.get('PREFIX').decode('utf-8')))+1:len(dunderSearch)]
+            print(dunderSearch)
+            nextToken = None
+        else:
+            pass
+        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 20:
+            print('Removing Country And Continuing Search')
+            dunderSearch = dunderSearch[:-int(str(redis_server.get('COUNTRY').decode('utf-8')))-1]
+            print(dunderSearch)
+            nextToken = None
+        else:
+            pass
+        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 25:
+            print('Removing Prefix And Country - Continuing Search')
+            dunderSearch = dunderSearch[int(str(redis_server.get('PREFIX').decode('utf-8')))+1:-int(str(redis_server.get('COUNTRY').decode('utf-8')))-1]
+            print(dunderSearch)
+            nextToken = None
+        else:
+            pass
+        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 35:
+            redis_server.set('LOOP', 0)
+            redis_server.set('WHILE', 'NOGO')
+            print('No Results Were Found - It Happens')
+            return False
+        else:
+            pass
         for video in searchResults.get('items', []):
             videoId = video['id']['videoId']
             videoTitle = video['snippet']['title']
-
-
             isVideo = video['id']['kind'] == 'youtube#video'
             isClean = title_clean(video['snippet']['title'],
                                   includeSearch=dunderSearch)
 
             if isVideo and isClean:
+                isFavorite = True
+                doIgnore   = True
+                for favorite in current_user.favorites:
+                    if favorite.videoId == videoId:
+                        isFavorite = False
+                    else:
+                        continue
+                for ignore in current_user.ignore:
+                    if ignore.videoId == videoId:
+                        doIgnore = False
+                    else:
+                        continue
 
-                isFavorite = db.session.query(Favorites).filter_by(videoId=videoId).first() == None
-                doIgnore   = db.session.query(Ignore).filter_by(videoId=videoId).first() == None
                 checkStats = stat_checker(videoId=videoId)
                 try:
                     checkComments = comment_counter(videoId=videoId) != False
@@ -217,12 +270,11 @@ def criteria_crunch (dunderSearch, publishedBefore, publishedAfter,
                     checkComments = False
 
                 if isFavorite and doIgnore and checkStats and checkComments:
-
+                    redis_server.set('WHILE', 'NOGO')
                     currentBand = Albums (
                       videoId=videoId, nextToken=nextToken,
                       genre=dunderSearch.upper(), videoTitle=videoTitle,
-                      topComment=comment_counter(videoId=videoId),
-                      isFavorite='')
+                      topComment=comment_counter(videoId=videoId))
 
                     db.session.add(currentBand)
                     db.session.commit()
@@ -250,11 +302,14 @@ def title_clean (tubeTitle, includeSearch='search', includeBand='band'):
     # This gives us the option to add extra words or band names.
     # By default is uses the search string itself to further avoid
     # 'lists' or 'compilations' as opposed to actual albums.
-    noWords.append("{0}".format(includeSearch))
-    noWords.append("{0}".format(includeBand))
-
+    no_words.append('{0}'.format(includeSearch))
+    no_words.append('{0}'.format(includeBand))
+    extra_no_words = db.session.query(Comments).filter_by(define='noWord').all()
+    for word in extra_no_words:
+        no_words.append('{0}'.format(word.commentWord))
+    best_no_words = list(set(no_words))
     for word in titleList:
-        for noWord in noWords:
+        for noWord in best_no_words:
             if noWord == word:
                 return False
     return True
@@ -287,13 +342,3 @@ def string_clean(dirtyText, listOrString=None):
 
 
 
-# Return a string with 1 random genre, 1 random sub-genre and 1 random country
-def random_genre (genrePrefix=genrePrefix, genreMain=genreMain,
-                  countryOfOrigin=countryOfOrigin):
-
-    randomPrefix = random.choice(genrePrefix)
-    randomGenre = random.choice(genreMain)
-    randomCountry = random.choice(countryOfOrigin)
-    return (str('{}'.format(randomPrefix)) + ' ' +
-            str('{}'.format(randomGenre)) +  ' ' +
-            str('{}'.format(randomCountry)))
