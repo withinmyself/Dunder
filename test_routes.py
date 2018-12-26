@@ -1,19 +1,19 @@
 import os
 import unittest
 
-from app import app, db
+from app import app, db, redis_server
 from app.search_module.search_functions import year_selecter, \
      search_getter, stat_checker, comment_counter, criteria_crunch, \
-     title_clean, string_clean, random_genre
-from app.settings_module.settings_functions import *
-TEST_DB = 'test.db'
+     title_clean, string_clean
+from app.settings_module.settings_functions import change_like_ratio, \
+     get_like_ratio, change_comments_needed, get_comments_needed, \
+     change_max_views, get_max_views, change_view_ratio, get_view_ratio
 
+TEST_DB = 'dunder_unit_test.db'
 
 class BasicTests(unittest.TestCase):
 
-# Setup and teardown
-
-    # executed prior to each test
+    # Executed prior to each test.
     def setUp(self):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
@@ -28,7 +28,7 @@ class BasicTests(unittest.TestCase):
         # mail.init_app(app)
         # self.assertEqual(app.debug, False)
 
-    # executed after each test
+    # Executed after each test.
     def tearDown(self):
         pass
 
@@ -119,9 +119,6 @@ class BasicTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             string_clean()
 
-    def test_random_genre(self):
-        response = random_genre()
-        self.assertTrue(isinstance(response, str))
 
 
 
@@ -145,13 +142,6 @@ class BasicTests(unittest.TestCase):
         is_equal = response == current_ratio
         self.assertTrue(is_float and is_also_float and is_equal)
 
-    def test_get_view_ratio(self):
-        current_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
-        response = get_view_ratio()
-        is_float = isinstance(current_ratio, float)
-        is_also_float = isinstance(response, float)
-        is_equal = current_ratio == response
-        self.assertTrue(is_float and is_also_float and is_equal)
 
 
 
@@ -168,50 +158,27 @@ class BasicTests(unittest.TestCase):
         response = get_comments_needed()
         self.assertEqual(current_comments, response)
 
-    def test_get_ignore(self):
-        response = get_ignore()
-        is_list = isinstance(response, list)
-        self.assertTrue(is_list)
-
-    def test_add_ignore(self):
-        add_ignore('UNIT_TEST', videoTitle='ADD_IGNORE')
-        is_there = db.session.query(Ignore).filter_by(videoId='UNIT_TEST').first()
-        is_obj = isinstance(is_there, object)
-        self.assertTrue(is_obj)
-
-    def test_delete_ignore(self):
-        delete_ignore('UNIT_TEST')
-        is_there = db.session.query(Ignore).filter_by(videoId='UNIT_TEST').first()
-        is_obj = is_there == None
-        self.assertTrue(is_obj)
-
-    def test_get_favorites(self):
-        response = get_favorites()
-        is_list = isinstance(response, list)
-        self.assertTrue(is_list)
-
-    def test_add_favorite(self):
-        add_favorite('UNIT_TEST', videoTitle='ADD_IGNORE')
-        is_there = db.session.query(Favorites).filter_by(videoId='UNIT_TEST').first()
-        is_obj = isinstance(is_there, object)
-        self.assertTrue(is_obj)
-
-    def test_delete_favorite(self):
-        delete_favorite('UNIT_TEST')
-        is_there = db.session.query(Favorites).filter_by(videoId='UNIT_TEST').first()
-        is_obj = is_there == None
-        self.assertTrue(is_obj)
-
-    def test_get_max_views(self):
-        current_max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
-        self.assertEqual(current_max_views, get_max_views())
-
     def test_change_max_views(self):
         change_max_views(20000)
         current_max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
         self.assertEqual(current_max_views, 20000)
 
+    def test_get_max_views(self):
+        current_max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
+        self.assertEqual(current_max_views, get_max_views())
 
+    def test_change_view_ratio(self):
+        change_view_ratio(0.010)
+        current_view_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+        self.assertEqual(current_view_ratio, 0.010)
+
+    def test_get_view_ratio(self):
+        current_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+        response = get_view_ratio()
+        is_float = isinstance(current_ratio, float)
+        is_also_float = isinstance(response, float)
+        is_equal = current_ratio == response
+        self.assertTrue(is_float and is_also_float and is_equal)
 
 
 

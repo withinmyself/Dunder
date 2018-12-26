@@ -1,0 +1,32 @@
+{% extends "master.html" %}
+{% block content %}
+
+<div class="faq-grid">
+  <div class="faq-item faq5"></div>
+  <div class="faq-item faq6"></div>
+  <div class="faq-item faq7"><p>DunderBands uses YouTube's API to pull a list of results based on criteria that specifically looks for rare underground albums.
+    Once we have the data from YouTube my custom criteria functions weed out 'best-of' and 'compilations' and also sets the ratio of likes to dislikes, the max views allowed,
+    and how many positive comments are required for a successful find.</p>
+    <p>
+    It pulls the top 100 comments from each video then searches for words like 'Amazing'  'Phenominal'  'Masterpiece'.  Once all criteria is finally met that particular video
+    will be returned and displayed as an embedded video with one of the positive comments displayed above it.  </p>
+    <p>
+    You then have several options. You can add this video as a favorite. You can have the search engine ignore this particular video from here on out
+    if it is something you don't like.  You can keep searching with the same search string.  Or you can click 'Anchor & Pivot'. </p>
+    <p>
+    'Anchor & Pivot' will ensure that the next search result will be directly related to this particular video.  This abandons the current search string in favor
+    of using the videoID to find relatable material.</p>
+    <p>
+    You can't access anything without creating an account with a username and password and then logging in.  Favorites and Ignores are user specific
+    so once you login you can start building your personal Favorites list and adding videos to ignore in the future.  There is a
+settings section that will eventually be tied to user accounts but for now I'm not allowing anyone to change anything in there.  Only view it.
+</p>
+<p>I have a lot of things I'd like to do over the next 3 months.  Asyncronous searching, Better looking HTML/CSS/JS and most importantly I plan on making DunderBands
+  mobile so I can put it on the Google Play Store.  Kivy, Python2Android and Buildozer are my options if I stick with what I have.  Or I would have to port
+  everything to Java or Kotlin and use Android Studio which I'm somewhat familiar with but not as much as Python/Flask.
+  Either way it will surely be an undertaking.  I'm looking forward to tackling it but I need to see how Kick Starter pans out.
+  </p>
+     </div>
+</div>
+
+{% endblock %}

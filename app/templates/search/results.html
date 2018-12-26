@@ -3,98 +3,92 @@
 
 <!-- Displays messages sent from Python using flash() -->
 {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li style.color="red">{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
+   {% if messages %}
+      {% for message in messages %}
+         <p style="color: greenyellow; background-color: black; text-align:center;">{{ message }}</p>
+      {% endfor %}
+   {% endif %}
 {% endwith %}
-{% block body %}{% endblock %}
 
 
 
 <div class="results-grid">
   <div class="results-item">
-    <p>{{ genre }}</p>
-    <p>{{ isFavorite.upper() }}</p>
-    <p>{{ commentPlug }}</p>
-    <p>{{ isFavorite.upper() }}</p>
+    <p>{{ currentBand.genre }}</p>
+    <p>{{ currentBand.topComment }}</p>
   </div>
 
   <!-- Shows embed video of found album -->
-  <iframe width="100%" height="315" src="https://www.youtube.com/embed/{{ videoId }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <iframe width="100%" height="315" src="https://www.youtube.com/embed/{{ currentBand.videoId }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
   <!-- Add album to favorites by adding the VideoId and Video Title to the database -->
   <form action="{{ url_for('settings.make_favorite') }}" method="POST">
-    <input type="hidden" name="videoId" value="{{ videoId }}"/>
+    <input type="hidden" name="videoTitle" value = "{{ currentBand.videoTitle }}" />
+    <input type="hidden" name="videoId" value="{{ currentBand.videoId }}"/>
     <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('2018') }}"/>
     <input type="hidden" name="publishedAfter"  value="{{ publishedAfter | default ('2016') }}"/>
-    <input type="hidden" name="dunderSearch"    value="{{ genre }}" />
-    <input type="hidden" name="videoTitle"      value="{{ videoTitle }}" />
     <input type="hidden" name="stayOrGo"        value="stay" />
+    <input type="hidden" name="topComment"      value="{{ currentBand.topComment }}"/>
   <div class="favorites"><input type="submit" id="fav" value="Click To Add As Favorite"
-    style="color:darkred;background-color:darkslategrey"
-    onmouseover="document.getElementById('fav').style.background='darkred';
-                 document.getElementById('fav').style.color='whitesmoke'"
+    style="color:whitesmoke;background-color:darkslategrey"
+    onmouseover="document.getElementById('fav').style.background='black';
+                 document.getElementById('fav').style.color='#0056B3'"
      onmouseout="document.getElementById('fav').style.background='darkslategrey';
-                 document.getElementById('fav').style.color='darkred'">
+                 document.getElementById('fav').style.color='whitesmoke'">
   </div>
     </form>
 
   <form action="{{ url_for('settings.make_ignore') }}" method="POST">
-    <input type="hidden" name="videoId"    value="{{ videoId }}"/>
-    <input type="hidden" name="videoTitle" value="{{ videoTitle }}" />
+    <input type="hidden" name="videoId"    value="{{ currentBand.videoId }}"/>
+    <input type="hidden" name="videoTitle" value="{{ currentBand.videoTitle }}" />
     <input type="hidden" name="stayOrGo"   value="stay" />
   <div class="ignore">
     <input type="submit" id="ignore" value="Add To Your Ignore List"
-    style="color:darkred;background-color: darkslategrey"
-    onmouseover="document.getElementById('ignore').style.background='darkred';
-                 document.getElementById('ignore').style.color='whitesmoke'"
+    style="color:whitesmoke;background-color: darkslategrey"
+    onmouseover="document.getElementById('ignore').style.background='black';
+                 document.getElementById('ignore').style.color='#0056B3'"
      onmouseout="document.getElementById('ignore').style.background='darkslategrey';
-                 document.getElementById('ignore').style.color='darkred'">
+                 document.getElementById('ignore').style.color='whitesmoke'">
   </div>
   </form>
 
   <!-- Keep searching with the same search string but moving to the next token -->
   <form action="{{ url_for('search.dunderbands') }}" method="POST">
-    <input type="hidden" name="dunderSearch" value="{{ genre }}"/>
-    <input type="hidden" name="nextToken" value="{{ nextToken }}" />
+    <input type="hidden" name="dunderRequest" value="{{ currentBand.genre }}"/>
+    <input type="hidden" name="nextToken" value="{{ currentBand.nextToken }}" />
     <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('2018') }}"/>
     <input type="hidden" name="publishedAfter" value="{{ publishedAfter | default ('2016') }}"/>
     <div class="continue">
-    <input type="submit" id="keep" value="Continue Searching This Genre" style="color:darkred;background-color:darkslategrey"
-    onmouseover="document.getElementById('keep').style.background='darkred';
-                 document.getElementById('keep').style.color='whitesmoke'"
+    <input type="submit" id="keep" value="Continue Searching This Genre" style="color:whitesmoke;background-color:darkslategrey"
+    onmouseover="document.getElementById('keep').style.background='black';
+                 document.getElementById('keep').style.color='#0056B3'"
      onmouseout="document.getElementById('keep').style.background='darkslategrey';
-                 document.getElementById('keep').style.color='darkred'"></div>
+                 document.getElementById('keep').style.color='whitesmoke'"></div>
 
   </form>
 
 <!-- Return home for a new search -->
   <form action="{{ url_for('search.dunderbands') }}" method="GET">
     <div class="home"><input type="submit" id="returnhome" value="Return Home And Search Again"
-      style="color:darkred;background-color: darkslategrey"
-      onmouseover="document.getElementById('returnhome').style.background='darkred';
-                   document.getElementById('returnhome').style.color='whitesmoke'"
+      style="color:whitesmoke;background-color: darkslategrey"
+      onmouseover="document.getElementById('returnhome').style.background='black';
+                   document.getElementById('returnhome').style.color='#0056B3'"
        onmouseout="document.getElementById('returnhome').style.background='darkslategrey';
-                   document.getElementById('returnhome').style.color='darkred'"></div>
+                   document.getElementById('returnhome').style.color='whitesmoke'"></div>
   </form>
 
 <!-- Anchor Pivot takes the VideoID and uses it as the main search point -->
   <form action="{{ url_for('search.dunderbands') }}" method="POST">
-    <input type="hidden" name="videoId" value="{{ videoId }}"/>
-    <input type="hidden" name="dunderSearch" value="{{ genre }}" />
+    <input type="hidden" name="videoId" value="{{ currentBand.videoId }}"/>
+    <input type="hidden" name="dunderRequest" value="{{ currentBand.genre }}" />
     <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('2018') }}"/>
     <input type="hidden" name="publishedAfter" value="{{ publishedAfter | default ('2016') }}" />
     <div class="anchor_pivot"><input type="submit" id="anchor" value="Anchor & Pivot"
-       style="color:darkred;background-color: darkslategrey"
-       onmouseover="document.getElementById('anchor').style.background='darkred';
-                    document.getElementById('anchor').style.color='whitesmoke'"
+       style="color:whitesmoke;background-color: darkslategrey"
+       onmouseover="document.getElementById('anchor').style.background='black';
+                    document.getElementById('anchor').style.color='#0056B3'"
         onmouseout="document.getElementById('anchor').style.background='darkslategrey';
-                    document.getElementById('anchor').style.color='darkred'"></div>
-  </form><p>If you click "Anchor And Pivot" your next search result will be directly associated with this video.</p></div>
-
+                    document.getElementById('anchor').style.color='whitesmoke'"></div>
+  </form><p style="color: greenyellow; background-color: black;">If you click "Anchor And Pivot" your next search result will be directly associated with this video.</p></div>
 
 {% endblock %}

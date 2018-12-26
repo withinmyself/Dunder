@@ -1,98 +1,171 @@
 from flask import Blueprint, request, render_template, \
                   flash, g, session, redirect, url_for, \
                   jsonify
-
-from app import db, redis_server
-from app.settings_module.models import Ignore, Favorites
-from app.settings_module.settings_functions import *
-from app.search_module.search_functions import random_genre
+from app import db, redis_server, login_manager
+from app.users_module.models import Ignore, Favorites
+from app.users_module.controllers import current_user
+from app.settings_module.settings_functions import change_like_ratio, \
+     get_like_ratio, change_comments_needed, get_comments_needed, \
+     change_max_views, get_max_views, change_view_ratio, get_view_ratio
 from app.search_module.models import Albums
 
 settings_routes = Blueprint('settings', __name__, url_prefix='/settings')
 
-# Routes for our search engine
 
-# Main search page
-@settings_routes.route('/', methods=['GET', 'POST'])
+@settings_routes.route('/', methods=['GET'])
 def settings():
-    if request.method == 'GET':
-        return render_template('settings/settings.html', redis=redis_server)
+    if current_user.is_authenticated:
+        return render_template('settings/settings.html', redis_server=redis_server)
     else:
-        pass
-
+        flash("You Still Need To Login First")
+        return redirect('users/login')
 
 @settings_routes.route('/criteria', methods=['GET', 'POST'])
 def criteria():
-    change_max_views(request.form['views'])
-    change_comments_needed(request.form['comments'])
-    change_like_ratio(request.form['likeratio'])
-    return render_template('settings/settings.html', redis=redis_server)
-
+    if current_user.is_authenticated:
+        if current_user.username == str(redis_server.get('USERNAME').decode('utf-8')):
+            change_max_views(request.form['views'])
+            change_comments_needed(request.form['comments'])
+            change_like_ratio(request.form['likeratio'])
+            change_view_ratio(request.form['view_ratio'])
+            return redirect('search/dunderbands')
+        else:
+            flash("Admin Access Only")
+            return redirect('users/login')
+    else:
+        flash("Admin Access Only")
+        return redirect('users/login')
 
 
 @settings_routes.route('/make_favorite/', methods=['POST'])
 def make_favorite():
-    stayOrGo = request.form['stayOrGo']
-    videoId = request.form['videoId']
-    if stayOrGo == 'stay':
+    if current_user.is_authenticated:
+        stayOrGo = request.form['stayOrGo']
+        videoId = request.form['videoId']
         videoTitle = request.form['videoTitle']
-        if db.session.query(Favorites).filter_by(videoId=videoId).first() == None:
-            add_favorite(videoId, videoTitle=videoTitle)
+        currentBand = db.session.query(Albums).filter_by(videoId=videoId).first()
+
+        # Decide to add or delete
+        if stayOrGo == 'stay':
+            if db.session.query(Favorites).filter_by(videoId=videoId).first() == None:
+                fav = Favorites(videoId, videoTitle=videoTitle)
+                fav.videoComments = request.form['topComment']
+                db.session.add(fav)
+            else:
+                # Check the current users relationship favorites for album
+                for favorite in current_user.favorites:
+                    if favorite.videoId == videoId:
+                        flash('Album Already Favorite')
+                        return render_template('search/results.html',
+                                currentBand      = currentBand,
+                                publishedBefore  = request.form['publishedBefore'],
+                                publishedAfter   = request.form['publishedAfter'])
+                    else:
+                        continue
+            # Need to append a new Favorite object
+            # to the current_user's favorites
+            fav = db.session.query(Favorites).filter_by(videoId=videoId).first()
+            current_user.favorites.append(fav)
+            db.session.commit()
         else:
-            flash('Album Already Favorite')
+            pass
+    else:
+        flash("You Need To Login First")
+        return redirect('users/login')
+
+    # This will only delete the relational data.  Not the database data.
     if stayOrGo == 'go':
-        if db.session.query(Favorites).filter_by(videoId=videoId).first() != None:
-            delete_favorite(videoId)
-        else:
-            flash('Album Already Gone')
-    currentBand = db.session.query(Albums).filter_by(videoId=videoId).first()
+        for favorite in current_user.favorites:
+            if favorite.videoId == videoId:
+                current_user.favorites.remove(favorite)
+                db.session.commit()
+                return redirect('search/results.html',
+                    currentBand     = currentBand,
+                    publishedBefore = request.form['publishedBefore'],
+                    publishedAfter  = request.form['publishedAfter'])
+            else:
+                pass
+        flash("Album Does Not Exist In Your Favorites")
+    else:
+        pass
+
     return render_template('search/results.html',
-                    videoId=currentBand.videoId,
-                    nextToken = currentBand.nextToken,
-                    genre=currentBand.genre,
-                    videoTitle=currentBand.videoTitle,
-                    commentPlug=currentBand.topComment,
-                    isFavorite=currentBand.isFavorite,
-                    publishedBefore=request.form['publishedBefore'],
-                    publishedAfter=request.form['publishedAfter'])
+                    currentBand     = currentBand,
+                    publishedBefore = request.form['publishedBefore'],
+                    publishedAfter  = request.form['publishedAfter'])
 
 @settings_routes.route('/make_ignore/', methods=['GET', 'POST'])
 def make_ignore():
-    videoId = request.form['videoId']
-    videoTitle = request.form['videoTitle']
-    stayOrGo = request.form['stayOrGo']
-    if stayOrGo == 'stay':
-        if db.session.query(Ignore).filter_by(videoId=videoId).first() == None:
-            add_ignore(videoId, videoTitle)
+    if current_user.is_authenticated:
+        videoId = request.form['videoId']
+        videoTitle = request.form['videoTitle']
+        stayOrGo = request.form['stayOrGo']
+        if stayOrGo == 'stay':
+            if db.session.query(Ignore).filter_by(videoId=videoId).first() == None:
+                ignore = Ignore(videoId, videoTitle)
+                db.session.add(ignore)
+            else:
+                for nore in current_user.ignore:
+                    if nore.videoId == videoId:
+                        flash('Video Already Being Ignored')
+                        return redirect('search/dunderbands')
+                    else:
+                        continue
+
+            ignore = db.session.query(Ignore).filter_by(videoId=videoId).first()
+            current_user.ignore.append(ignore)
+            db.session.commit()
         else:
-            flash('Video Already Being Ignored')
+            pass
+    else:
+        flash("You Need To Login First")
+        return redirect('users/login')
     if stayOrGo == 'go':
-        if db.session.query(Ignore).filter_by(videoId=videoId).first() != None:
-            delete_ignore(videoId)
-        else:
-            flash('Video Already Deleted From Ignore List')
-    dunderRandom = random_genre()
-    return render_template('search/dunderbands.html', dunderRandom = dunderRandom)
+        for nore in current_user.ignore:
+            if nore.videoId == videoId:
+                current_user.ignore.remove(nore)
+                db.session.commit()
+                return redirect('search/dunderbands')
+            else:
+                pass
+        flash('Video Already Deleted From Ignore List')
+    else:
+        pass
+
+    return redirect('search/dunderbands')
+
 
 @settings_routes.route('/about/', methods=['GET', 'POST'])
 def about():
     return render_template('info/about.html')
 
+@settings_routes.route('/faq/', methods=['GET'])
+def faq():
+    return render_template('info/faq.html')
+
 @settings_routes.route('/favorites/', methods=['GET', 'POST'])
 def favorites():
-    if request.method == 'GET':
-        fav_first = get_random_favorite()
-        fav_albums = get_favorites()
-        return render_template('favorites.html',
-                               fav_albums=fav_albums,
-                               videoId=fav_first.videoId)
+    if current_user.is_authenticated:
+        if request.method == 'GET':
+            for favorite in current_user.favorites:
+                first_video   = favorite.videoId
+                first_comment = favorite.videoComments
+                return render_template('info/favorites.html',
+                                  first_video   = first_video,
+                                  first_comment = first_comment,
+                                  current_user = current_user)
+        else:
+            pass
+        if request.method == 'POST':
+            first_video   = request.form['videoId']
+            first_comment = request.form['videoComments']
+            return render_template('info/favorites.html',
+                                    first_video   = first_video,
+                                    first_comment = first_comment,
+                                    current_user  = current_user)
+        else:
+            pass
     else:
-        try:
-            fav_first = request.form['fav']
-        except KeyError:
-            fav_first = get_random_favorite()
-        fav_albums = get_favorites()
-        return render_template('favorites.html',
-                               fav_albums=fav_albums,
-                               videoId=fav_first)
+        flash("You Need To Login First")
+        return redirect('users/login')
 
