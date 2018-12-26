@@ -3,15 +3,13 @@ from flask import Blueprint, request, render_template, \
 from app.users_module.controllers import current_user
 from flask_login import login_required
 
-import asyncio
-
 
 from app import db, redis_server, login_manager
 from app.users_module.controllers import load_user
 from app.users_module.models import Favorites
 from app.search_module.models import Albums
 from app.search_module.search_functions import criteria_crunch, \
-     string_clean, random_genre, no_word_string
+     string_clean
 
 search_routes = Blueprint('search', __name__, url_prefix='/search')
 
@@ -22,7 +20,7 @@ search_routes = Blueprint('search', __name__, url_prefix='/search')
 def index():
    return redirect('search/dunderbands')
 
-@login_required
+
 @search_routes.route('/dunderbands', methods=['GET', 'POST'])
 def dunderbands():
     if request.method == 'GET':

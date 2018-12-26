@@ -1,19 +1,23 @@
 import redis
 import os
 # Statement for enabling the development environment
-DEBUG = True
 
-redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-redis_server = redis.from_url(redis_url)
-#redis_server = redis.Redis(host='0.0.0.0', port='6379')
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
+DEBUG = os.getenv('DEBUG_BOOL')
+if os.getenv('REDISTOGO_URL') == 'local':
+    redis_server = redis.Redis(host='0.0.0.0', port='6379')
+else:
+    redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+    redis_server = redis.from_url(redis_url)
+
+
 # Postgres database link stored in Redis
-try:
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-except KeyError:
+if os.getenv('DATABASE_URL') == 'local':
     SQLALCHEMY_DATABASE_URI = redis_server.get('SQL_DATABASE').decode('utf-8')
+else:
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 

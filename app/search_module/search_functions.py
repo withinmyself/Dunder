@@ -27,9 +27,6 @@ YOUTUBE = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 DEBUG = True
 SEE_TITLES = False
 
-def no_word_string():
-    search_no_words = ['-{0}'.format(word) for word in no_words]
-    return re.sub(r'[.!,;?]', ' ', str(search_no_words)).upper()
 
 # Add words from lists to database.
 def word_sort():
@@ -345,13 +342,3 @@ def string_clean(dirtyText, listOrString=None):
 
 
 
-# Return a string with 1 random genre, 1 random sub-genre and 1 random country
-def random_genre (genrePrefix=genrePrefix, genreMain=genreMain,
-                  countryOfOrigin=countryOfOrigin):
-
-    randomPrefix = random.choice(genrePrefix)
-    randomGenre = random.choice(genreMain)
-    randomCountry = random.choice(countryOfOrigin)
-    return (str('{}'.format(randomPrefix)) + ' ' +
-            str('{}'.format(randomGenre)) +  ' ' +
-            str('{}'.format(randomCountry)))

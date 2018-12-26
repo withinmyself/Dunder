@@ -1,33 +1,25 @@
 from flask import Blueprint, request, render_template, \
                   flash, g, session, redirect, url_for, \
                   jsonify
-from flask_login import login_required
-
 from app import db, redis_server, login_manager
 from app.users_module.models import Ignore, Favorites
 from app.users_module.controllers import current_user
-from app.settings_module.settings_functions import *
-from app.search_module.search_functions import random_genre
+from app.settings_module.settings_functions import change_like_ratio, \
+     get_like_ratio, change_comments_needed, get_comments_needed, \
+     change_max_views, get_max_views, change_view_ratio, get_view_ratio
 from app.search_module.models import Albums
 
 settings_routes = Blueprint('settings', __name__, url_prefix='/settings')
 
-# Routes for our search engine
 
-# Main search page
-@login_required
-@settings_routes.route('/', methods=['GET', 'POST'])
+@settings_routes.route('/', methods=['GET'])
 def settings():
     if current_user.is_authenticated:
-        if request.method == 'GET':
-            return render_template('settings/settings.html', redis=redis_server)
-        else:
-            pass
+        return render_template('settings/settings.html', redis_server=redis_server)
     else:
         flash("You Still Need To Login First")
         return redirect('users/login')
 
-@login_required
 @settings_routes.route('/criteria', methods=['GET', 'POST'])
 def criteria():
     if current_user.is_authenticated:
@@ -36,20 +28,18 @@ def criteria():
             change_comments_needed(request.form['comments'])
             change_like_ratio(request.form['likeratio'])
             change_view_ratio(request.form['view_ratio'])
-            return render_template('search/dunderbands.html')
+            return redirect('search/dunderbands')
         else:
-            flash("Admin Access Only - Login With Correct Credentials")
+            flash("Admin Access Only")
             return redirect('users/login')
     else:
-        flash("You Need To Login With Admin Access In Order To Do That")
+        flash("Admin Access Only")
         return redirect('users/login')
 
 
-@login_required
 @settings_routes.route('/make_favorite/', methods=['POST'])
 def make_favorite():
     if current_user.is_authenticated:
-        # Declare all variables
         stayOrGo = request.form['stayOrGo']
         videoId = request.form['videoId']
         videoTitle = request.form['videoTitle']
@@ -153,7 +143,6 @@ def about():
 def faq():
     return render_template('info/faq.html')
 
-@login_required
 @settings_routes.route('/favorites/', methods=['GET', 'POST'])
 def favorites():
     if current_user.is_authenticated:
