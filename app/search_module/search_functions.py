@@ -251,17 +251,19 @@ def criteria_crunch (dunderSearch, publishedBefore=None, publishedAfter=None,
             if isVideo and isClean:
                 isFavorite = True
                 doIgnore   = True
-                for favorite in current_user.favorites:
-                    if favorite.videoId == videoId:
-                        isFavorite = False
-                    else:
-                        continue
-                for ignore in current_user.ignore:
-                    if ignore.videoId == videoId:
-                        doIgnore = False
-                    else:
-                        continue
-
+                try:
+                    for favorite in current_user.favorites:
+                        if favorite.videoId == videoId:
+                            isFavorite = False
+                        else:
+                            continue
+                    for ignore in current_user.ignore:
+                        if ignore.videoId == videoId:
+                            doIgnore = False
+                        else:
+                            continue
+                except AttributeError:
+                    print('Unit Test - Current User Is Fraudulent')
                 checkStats = stat_checker(videoId=videoId)
                 try:
                     checkComments = comment_counter(videoId=videoId) != False

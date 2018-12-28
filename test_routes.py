@@ -23,7 +23,7 @@ class BasicTests(unittest.TestCase):
         self.app = app.test_client()
         db.drop_all()
         db.create_all()
-
+        db.session.close()
         # Disable sending emails during unit testing
         # mail.init_app(app)
         # self.assertEqual(app.debug, False)
@@ -45,7 +45,7 @@ class BasicTests(unittest.TestCase):
         response = self.app.post('/search', data=dict(videoId='aEiOu',
                    dunderSearch='Post Metal France', publishedBefore=2018,
                    publishedAfter=2015, nextToken=None),follow_redirects=True)
-        self.assertIn(b'Change Search', response.data)
+        self.assertIn(b'Method Not Allowed', response.data)
 
 
     def test_year_selecter(self, year=1987):
