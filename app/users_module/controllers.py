@@ -46,12 +46,16 @@ def signup():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data, method='sha256')
-        new_user = User(email=form.email.data, password=hashed_password, username=form.username.data)
-        db.session.add(new_user)
-        db.session.commit()
-        flash("New User Created - Please Login")
-        return redirect('users/login')
+        if db.session.query(User).filter_by(username=form.username.data).first():
+            flash("Unfortunately, That Username Has Already Been Taken")
+            return redirect('users/signup')
+        else:
+            hashed_password = generate_password_hash(form.password.data, method='sha256')
+            new_user = User(email=form.email.data, password=hashed_password, username=form.username.data)
+            db.session.add(new_user)
+            db.session.commit()
+            flash("New User Created - Please Login")
+            return redirect('users/login')
     else:
         pass
     return render_template('users/signup.html', form=form)
