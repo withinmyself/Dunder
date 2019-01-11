@@ -5,28 +5,28 @@
 <div class="settings-grid">
 
   <div class="item"><p>Like Ratio</p></div>
-  <div class="item"><input type="float" placeholder="{{ redis.get('LIKE_RATIO').decode('utf-8') }}" name="likeratio"
-                size="4" style="height: 30px" value="{{ redis.get('LIKE_RATIO').decode('utf-8') }}"></div>
+  <div class="item"><input type="float" placeholder="{{ redis_server.get('LIKE_RATIO').decode('utf-8') }}" name="likeratio"
+                size="4" style="height: 30px" value="{{ redis_server.get('LIKE_RATIO').decode('utf-8') }}"></div>
   <div class="item"><input type="submit" value="Commit Changes" style="height: 30px" value="ratio"></div>
   <div class="item item-like"><p> 0.001-0.050 | Lower numbers increase quality/rarity |
                                   Higher numbers increase quantity/popularity</p></div>
 
   <div class="item"><p>Comments</p></div>
-  <div class="item"><input type="float" placeholder="{{ redis.get('MIN_COUNT').decode('utf-8')|int|string }}" name="comments"
-               size="4" style="height: 30px"  value="{{ redis.get('MIN_COUNT').decode('utf-8') }}"></div>
+  <div class="item"><input type="float" placeholder="{{ redis_server.get('MIN_COUNT').decode('utf-8')|int|string }}" name="comments"
+               size="4" style="height: 30px"  value="{{ redis_server.get('MIN_COUNT').decode('utf-8') }}"></div>
   <div class="item"><input type="submit" value="Commit Changes" style="height: 30px" value="count"></div>
   <div class="item item-like"><p>0-5 |  Number of exciter words required in the top 100 comments |
                                         2-3 is recommended</p></div>
 
   <div class="item"><p>Max Views</p></div>
-  <div class="item"><input type="text" placeholder="{{ redis.get('MAX_VIEWS').decode('utf-8')|int|string }}" name="views"
-               size="4" style="height: 30px" value="{{ redis.get('MAX_VIEWS').decode('utf-8') }}"></div>
+  <div class="item"><input type="text" placeholder="{{ redis_server.get('MAX_VIEWS').decode('utf-8')|int|string }}" name="views"
+               size="4" style="height: 30px" value="{{ redis_server.get('MAX_VIEWS').decode('utf-8') }}"></div>
   <div class="item"><input type="submit" value="Commit Changes" style="height: 30px"></div>
   <div class="item item-like"><p>This is the current view count | Keep it low to find albums that haven't been heard much yet</p></div>
 
   <div class="item"><p>View Ratio</p></div>
-  <div class="item"><input type="text" placeholder="{{ redis.get('VIEW_RATIO').decode('utf-8')|int|string }}" name="view_ratio"
-               size="4" style="height: 30px" value="{{ redis.get('VIEW_RATIO').decode('utf-8') }}"></div>
+  <div class="item"><input type="text" placeholder="{{ redis_server.get('VIEW_RATIO').decode('utf-8')|int|string }}" name="view_ratio"
+               size="4" style="height: 30px" value="{{ redis_server.get('VIEW_RATIO').decode('utf-8') }}"></div>
   <div class="item"><input type="submit" value="Commit Changes" style="height: 30px"></div>
   <div class="item item-like"><p>Calculated by dividing the total votes  <body>
                                   by the total views. | This tells us how many people are re-listening which
