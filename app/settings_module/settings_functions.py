@@ -13,10 +13,10 @@ class Criteria:
         return float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
 
     def change_comments_needed(self, amount):
-        redis_server.set('MIN_COUNT', amount)
+        redis_server.set('COMMENTS_REQUESTED', amount)
 
     def get_comments_needed(self):
-        return int(str(redis_server.get('MIN_COUNT').decode('utf-8')))
+        return int(str(redis_server.get('COMMENTS_REQUESTED').decode('utf-8')))
 
     def change_max_views(self, amount):
         redis_server.set('MAX_VIEWS', amount)
