@@ -12,8 +12,6 @@ from app.users_module.models import User
 from app import db, redis_server, login_manager
 users_routes = Blueprint('users', __name__, url_prefix='/users')
 
-
-
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=4, max=32)])
@@ -28,7 +26,6 @@ class RegisterForm(FlaskForm):
 def load_user(user_id):
     user =  db.session.query(User).filter_by(id=user_id).first()
     return user
-
 
 @users_routes.route('/login', methods=['GET', 'POST'])
 def login():
@@ -56,13 +53,11 @@ def signup():
             db.session.commit()
             flash("New User Created - Please Login")
             return redirect('users/login')
-    else:
-        pass
     return render_template('users/signup.html', form=form)
 
 @users_routes.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
     logout_user()
-    flash("You Have Logged Off - If You Wish To Use DunderBands You Must Provide Your Username & Password")
+    flash("You Have Logged Off")
     return redirect('users/login')

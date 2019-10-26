@@ -1,6 +1,5 @@
 from app import db
 
-
 # Base model for all other database classes to inherit
 class Base(db.Model):
 
@@ -30,5 +29,5 @@ class Albums(Base):
 
     def __repr__(self):
         return 'VideoID: {0:s} | VideoTitle: {1:s} | Genre: {2:s}'.format(
-                                self.videoId, self.videoTitle, self.genre)
+            self.videoId, self.videoTitle, self.genre)
 

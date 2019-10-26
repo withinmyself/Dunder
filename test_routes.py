@@ -7,7 +7,7 @@ from app.search_module.search_functions import year_selecter, \
      title_clean, string_clean
 from app.settings_module.settings_functions import change_like_ratio, \
      get_like_ratio, change_comments_needed, get_comments_needed, \
-     change_max_views, get_max_views, change_view_ratio, get_view_ratio
+     change_max_views, get_max_views #change_view_ratio, get_view_ratio
 
 TEST_DB = 'dunder_unit_test.db'
 
@@ -61,7 +61,7 @@ class BasicTests(unittest.TestCase):
         self.assertTrue(stat_checker('aAN9rtgt21w'))
 
     def test_comment_counter(self):
-        response = comment_counter('aAN9rtgt21w')
+        response = comment_counter('lpH-twr9S8o')
         self.assertTrue(isinstance(response, str))
 
     def test_criteria_crunch(self):
@@ -167,18 +167,18 @@ class BasicTests(unittest.TestCase):
         current_max_views = int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
         self.assertEqual(current_max_views, get_max_views())
 
-    def test_change_view_ratio(self):
-        change_view_ratio(0.010)
-        current_view_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
-        self.assertEqual(current_view_ratio, 0.010)
+    #def test_change_view_ratio(self):
+     #   change_view_ratio(0.010)
+      #  current_view_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+       # self.assertEqual(current_view_ratio, 0.010)
 
-    def test_get_view_ratio(self):
-        current_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
-        response = get_view_ratio()
-        is_float = isinstance(current_ratio, float)
-        is_also_float = isinstance(response, float)
-        is_equal = current_ratio == response
-        self.assertTrue(is_float and is_also_float and is_equal)
+    #def test_get_view_ratio(self):
+     #   current_ratio = float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+      #  response = get_view_ratio()
+       # is_float = isinstance(current_ratio, float)
+        #is_also_float = isinstance(response, float)
+        #is_equal = current_ratio == response
+        #self.assertTrue(is_float and is_also_float and is_equal)
 
 
 

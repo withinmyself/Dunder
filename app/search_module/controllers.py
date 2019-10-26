@@ -1,9 +1,8 @@
 from flask import Blueprint, request, render_template, \
                   flash, g, session, redirect, url_for
-from app.users_module.controllers import current_user
 from flask_login import login_required
 
-
+from app.users_module.controllers import current_user
 from app import db, redis_server, login_manager
 from app.users_module.controllers import load_user
 from app.users_module.models import Favorites

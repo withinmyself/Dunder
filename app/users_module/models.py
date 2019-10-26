@@ -18,14 +18,14 @@ class User(db.Model, UserMixin):
 
     id            = db.Column(db.Integer, primary_key=True)
 
-    # Required
     active        = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
     username      = db.Column(db.String(100), nullable=True)
-    email         = db.Column(db.String(255), nullable=False)
-    password      = db.Column(db.String(255), nullable=False, server_default='dunder')
-    # Optional
+    email         = db.Column(db.String(255), nullable=True)
+    password      = db.Column(db.String(255), nullable=False, server_default='rock_engine')
+
     first_name    = db.Column(db.String(100), nullable=True, server_default='')
     last_name     = db.Column(db.String(100), nullable=True, server_default='')
+    
     # Relational databases
     favorites     = db.relationship('Favorites')
     ignore        = db.relationship('Ignore')
@@ -59,6 +59,7 @@ class Favorites(Base):
     videoId       = db.Column(db.String(100))
     videoTitle    = db.Column(db.String(500))
     videoComments = db.Column(db.String(500), server_default='No Comments')
+    
     # Parent for relational
     user          = db.Column(db.Integer, db.ForeignKey('users.id'))
 
@@ -72,7 +73,6 @@ class Favorites(Base):
 
 class Comments(Base):
     __tablename__ = 'comments'
-
 
     word          = db.Column(db.String(500))
 
@@ -88,10 +88,3 @@ class Comments(Base):
 
     def __repr__(self):
         return 'Type: {0:s} Word: {1:s}'.format(self.define, self.commentWord)
-
-
-
-
-
-
-

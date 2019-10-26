@@ -4,13 +4,11 @@ from flask import Blueprint, request, render_template, \
 from app import db, redis_server, login_manager
 from app.users_module.models import Ignore, Favorites
 from app.users_module.controllers import current_user
-from app.settings_module.settings_functions import change_like_ratio, \
-     get_like_ratio, change_comments_needed, get_comments_needed, \
-     change_max_views, get_max_views, change_view_ratio, get_view_ratio
+from app.settings_module.settings_functions import Criteria
 from app.search_module.models import Albums
 
 settings_routes = Blueprint('settings', __name__, url_prefix='/settings')
-
+settings = Criteria()
 
 @settings_routes.route('/', methods=['GET'])
 def settings():
@@ -24,10 +22,10 @@ def settings():
 def criteria():
     if current_user.is_authenticated:
         if current_user.username == str(redis_server.get('USERNAME').decode('utf-8')):
-            change_max_views(request.form['views'])
-            change_comments_needed(request.form['comments'])
-            change_like_ratio(request.form['likeratio'])
-            change_view_ratio(request.form['view_ratio'])
+            settings.change_max_views(request.form['views'])
+            settings.change_comments_needed(request.form['comments'])
+            settings.change_like_ratio(request.form['likeratio'])
+            settings.change_view_ratio(request.form['view_ratio'])
             return redirect('search/dunderbands')
         else:
             flash("Admin Access Only")
@@ -62,8 +60,7 @@ def make_favorite():
                                 publishedAfter   = request.form['publishedAfter'])
                     else:
                         continue
-            # Need to append a new Favorite object
-            # to the current_user's favorites
+
             fav = db.session.query(Favorites).filter_by(videoId=videoId).first()
             current_user.favorites.append(fav)
             db.session.commit()
@@ -105,18 +102,14 @@ def make_ignore():
                 ignore = Ignore(videoId, videoTitle)
                 db.session.add(ignore)
             else:
-                for nore in current_user.ignore:
-                    if nore.videoId == videoId:
+                for ignore in current_user.ignore:
+                    if ignore.videoId == videoId:
                         flash('Video Already Being Ignored')
                         return redirect('search/dunderbands')
-                    else:
-                        continue
 
             ignore = db.session.query(Ignore).filter_by(videoId=videoId).first()
             current_user.ignore.append(ignore)
             db.session.commit()
-        else:
-            pass
     else:
         flash("You Need To Login First")
         return redirect('users/login')
@@ -126,14 +119,9 @@ def make_ignore():
                 current_user.ignore.remove(nore)
                 db.session.commit()
                 return redirect('search/dunderbands')
-            else:
-                pass
         flash('Video Already Deleted From Ignore List')
-    else:
-        pass
 
     return redirect('search/dunderbands')
-
 
 @settings_routes.route('/about/', methods=['GET', 'POST'])
 def about():
@@ -145,27 +133,21 @@ def faq():
 
 @settings_routes.route('/favorites/', methods=['GET', 'POST'])
 def favorites():
-    if current_user.is_authenticated:
-        if request.method == 'GET':
-            for favorite in current_user.favorites:
-                first_video   = favorite.videoId
-                first_comment = favorite.videoComments
-                return render_template('info/favorites.html',
-                                  first_video   = first_video,
-                                  first_comment = first_comment,
-                                  current_user = current_user)
-        else:
-            pass
-        if request.method == 'POST':
-            first_video   = request.form['videoId']
-            first_comment = request.form['videoComments']
+    if current_user.is_authenticated and request.method == 'GET':
+        for favorite in current_user.favorites:
+            first_video   = favorite.videoId
+            first_comment = favorite.videoComments
             return render_template('info/favorites.html',
-                                    first_video   = first_video,
-                                    first_comment = first_comment,
-                                    current_user  = current_user)
-        else:
-            pass
-    else:
-        flash("You Need To Login First")
-        return redirect('users/login')
-
+                first_video   = first_video,
+                first_comment = first_comment,
+                current_user = current_user)
+    
+    if current_user.is_authenticated and request.method == 'POST':
+        first_video   = request.form['videoId']
+        first_comment = request.form['videoComments']
+        return render_template('info/favorites.html',
+            first_video   = first_video,
+            first_comment = first_comment,
+            current_user  = current_user)
+    flash("You Need To Login First")
+    return redirect('users/login')
