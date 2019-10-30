@@ -26,105 +26,43 @@ search = Search()
 
 
 # Logic operators, error checking and YouTube search results.
-def criteria_crunch (dunderSearch, published_before=None, published_after=None,
-                     nextToken=None, dunderAnchor=None):
+def criteria_crunch (
+        dunder_search, 
+        published_before=None, 
+        published_after=None, 
+        next_token=None, 
+        dunder_anchor=None):
 
+    search_results = search.search_getter (
+                    dunder_search,
+                    token=next_token,
+                    related_video=dunder_anchor,
+                    published_before=published_before,
+                    published_after=published_after)
+    x = 0
+    redis_server.set('NEXT_TOKEN', search_results['nextPageToken'])
+    for video in search_results.get('items', []):
+        x += 1
+        print(x)
+        videoId = video['id']['videoId']
+        video_title = video['snippet']['title']
+        is_video = video['id']['kind'] == 'youtube#video'
+        no_words_free = search.title_clean(video_title,
+                              include_search=dunder_search)
+        user_wants = search.preference_check(videoId)
+        stats_match = search.stat_checker(videoId=videoId)
 
-    redis_server.set('LOOP', 0)
-    redis_server.set('WHILE', 'GO')
-    while True:
-        redis_server.incr('LOOP')
-        if str(redis_server.get('WHILE').decode('utf-8')) == 'NOGO':
-            print('Redis is a NOGO')
-            return False
-        print(published_after, published_before)
-        published_before = search.year_selecter(year=2018)
-        published_after = search.year_selecter(year=2016)
+        if is_video and no_words_free and user_wants and stats_match:
+            check_comments = search.comment_word_counter(
+                comments=search.comment_getter(videoId=videoId), 
+                all_yes_words=search.get_yes_words())
 
+            if check_comments != False:
+                current_band = Albums (
+                    videoId=videoId, nextToken=next_token,
+                    genre=dunder_search.upper(), videoTitle=video_title,
+                    topComment=check_comments)
 
-        searchResults = search.search_getter (
-                        dunderSearch,
-                        token=nextToken,
-                        related_video=dunderAnchor,
-                        published_before=published_before,
-                        published_after=published_after)
-        try:
-            nextToken = searchResults['nextPageToken']
-        except KeyError:
-            nextToken = None
-        
-        # At 10 iterations we start removing words from the search 
-        # to increase the chance of receiving a result.
-        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 10:
-            print('Removing Prefix And Continuing Search')
-            dunderSearch = dunderSearch[int(str(redis_server.get('PREFIX').decode('utf-8')))+1:len(dunderSearch)]
-            print(dunderSearch)
-            nextToken = None
-
-        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 20:
-            print('Removing Country And Continuing Search')
-            dunderSearch = dunderSearch[:-int(str(redis_server.get('COUNTRY').decode('utf-8')))-1]
-            print(dunderSearch)
-            nextToken = None
-
-        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 25:
-            print('Removing Prefix And Country - Continuing Search')
-            dunderSearch = dunderSearch[int(str(redis_server.get('PREFIX').decode('utf-8')))+1:-int(str(redis_server.get('COUNTRY').decode('utf-8')))-1]
-            print(dunderSearch)
-            nextToken = None
-
-        if int(str(redis_server.get('LOOP').decode('utf-8'))) == 35:
-            redis_server.set('LOOP', 0)
-            redis_server.set('WHILE', 'NOGO')
-            print('No Results Were Found - It Happens')
-            return False
-
-        for video in searchResults.get('items', []):
-            videoId = video['id']['videoId']
-            videoTitle = video['snippet']['title']
-            isVideo = video['id']['kind'] == 'youtube#video'
-            isClean = search.title_clean(video['snippet']['title'],
-                                  includeSearch=dunderSearch)
-
-            if isVideo and isClean:
-                isFavorite = True
-                doIgnore   = True
-                try:
-                    for favorite in current_user.favorites:
-                        if favorite.videoId == videoId:
-                            isFavorite = False
-                        else:
-                            continue
-                    for ignore in current_user.ignore:
-                        if ignore.videoId == videoId:
-                            doIgnore = False
-                        else:
-                            continue
-                except AttributeError:
-                    print('Unit Test - Current User Is Fraudulent')
-                
-                checkStats = search.stat_checker(videoId=videoId)
-                comments = search.comment_getter(videoId=videoId)
-                all_yes_words = search.get_yes_words()
-                if comments != False:
-                    try:
-                        check_comments = search.comment_word_counter(
-                            comments=comments, 
-                            all_yes_words=all_yes_words)
-                    except KeyError:
-                        print('KeyError: Comments disabled.')
-                        check_comments = False
-                else:
-                    check_comments = False
-
-                if check_comments != False:
-                    if isFavorite and doIgnore and checkStats:
-                        redis_server.set('WHILE', 'NOGO')
-                        currentBand = Albums (
-                            videoId=videoId, nextToken=nextToken,
-                            genre=dunderSearch.upper(), videoTitle=videoTitle,
-                            topComment=check_comments)
-
-                        db.session.add(currentBand)
-                        db.session.commit()
-                        return currentBand
+                db.session.add(current_band)
+                db.session.commit()
+                return current_band

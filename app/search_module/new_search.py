@@ -22,22 +22,7 @@ search = Search()
 # no_words are words associated with compilation videos, fan videos, mixtapes.
 # yes_words are words we search for in the comments of found albums.
 
-def preference_check(videoId): 
-    not_favorite = True
-    dont_ignore = True
-            
-    for favorite in current_user.favorites:
-        if favorite.videoId == videoId:
-            not_favorite = False
 
-    for ignore in current_user.ignore:
-        if ignore.videoId == videoId:
-            dont_ignore = False
-
-    if not_favorite and dont_ignore:
-        return True
-    
-    return False
 
 
 # Logic operators, error checking and YouTube search results.

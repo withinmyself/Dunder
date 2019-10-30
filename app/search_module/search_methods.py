@@ -27,15 +27,9 @@ class Search:
     def __init__(self):
         pass
 
-
-    # Take four digit year. Return RFC3339 datetime object.
-    def year_selecter(self, year):
-        yearConverted = datetime.datetime(int(year),12,30).isoformat()+'Z'
-        return yearConverted
-
     # API interaction to YouTube.
     def search_getter(self,
-        q, max_results=1, video_duration='long', 
+        q, max_results=50, video_duration='long', 
         token=None, location=None,
         location_radius=None, related_video=None,
         published_before=None, published_after=None):
@@ -92,6 +86,22 @@ class Search:
             return True
         return False
 
+    def preference_check(self, videoId): 
+        not_favorite = True
+        dont_ignore = True
+                
+        for favorite in current_user.favorites:
+            if favorite.videoId == videoId:
+                not_favorite = False
+
+        for ignore in current_user.ignore:
+            if ignore.videoId == videoId:
+                dont_ignore = False
+
+        if not_favorite and dont_ignore:
+            return True
+        return False
+
     # We pull the first 100 comments from our criteria passed video.
     def comment_getter (self, videoId):
         try:
@@ -131,7 +141,7 @@ class Search:
             for word in all_yes_words:
                 words_found = words_found + clean_text.count(word)
                 if words_found > 0:
-                    redis_server.set('COMMENT', text)
+                    redis_server.set('COMMENT', text[:300])
                     redis_server.incr('TOTAL_WORDS')
                     break
 
@@ -146,22 +156,22 @@ class Search:
         # Takes current video title and checks against our list
     # of words that might pull in 'mix' videos,
     # compilations and 'best of' lists.
-    def title_clean (self, tubeTitle, includeSearch='search', includeBand='band'):
+    def title_clean (self, tubeTitle, include_search='search', include_band='band'):
 
-        titleList = re.sub(r'[.!,;?]', ' ', tubeTitle).lower().split()
+        title_list = re.sub(r'[.!,;?]', ' ', tubeTitle).lower().split()
 
         # This gives us the option to add extra words or band names.
         # By default it uses the search string itself to further avoid
         # 'lists' or 'compilations' as opposed to actual albums.
-        no_words.append('{0}'.format(includeSearch))
-        no_words.append('{0}'.format(includeBand))
+        no_words.append('{0}'.format(include_search))
+        no_words.append('{0}'.format(include_band))
         extra_no_words = db.session.query(Comments).filter_by(define='noWord').all()
 
         for word in extra_no_words:
             no_words.append('{0}'.format(word.commentWord))
         best_no_words = list(set(no_words))
 
-        for word in titleList:
+        for word in title_list:
             for noWord in best_no_words:
                 if noWord == word:
                     return False

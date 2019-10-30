@@ -1,3 +1,5 @@
+import datetime
+
 from flask import Blueprint, request, render_template, \
                   flash, g, session, redirect, url_for
 from flask_login import login_required
@@ -54,9 +56,10 @@ def dunderbands():
             except KeyError:
                 dunderRequest    = request.form['dunderRequest']
             dunderSearch         = search.string_clean(dunderRequest, 'stringNeededUpper')
-            publishedBefore      = request.form['publishedBefore']
-            publishedAfter       = request.form['publishedAfter']
-            print('{0} | {1}'.format(publishedBefore, publishedAfter))
+
+            publishedBefore = datetime.datetime(int(request.form['publishedBefore']),12,30).isoformat()+'Z'
+            publishedAfter = datetime.datetime(int(request.form['publishedAfter']),12,30).isoformat()+'Z'
+
             try:
                 nextToken        = request.form['nextToken']
             except KeyError:
@@ -65,11 +68,11 @@ def dunderbands():
             db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
             db.session.commit()
             currentBand          = criteria_crunch(
-                dunderSearch     = dunderSearch,
+                dunder_search     = dunderSearch,
                 published_before  = publishedBefore,
                 published_after   = publishedAfter,
-                nextToken        = nextToken,
-                dunderAnchor     = dunderAnchor)
+                next_token        = nextToken,
+                dunder_anchor     = dunderAnchor)
         else:
             return redirect('users/login')
             flash("You Need To Login First - Click Signup If You Don't Have A Username Yet")
