@@ -7,8 +7,10 @@ from app import db, redis_server, login_manager
 from app.users_module.controllers import load_user
 from app.users_module.models import Favorites
 from app.search_module.models import Albums
-from app.search_module.search_functions import criteria_crunch, \
-     string_clean
+from app.search_module.search_functions import criteria_crunch
+from app.search_module.search_methods import Search
+
+search = Search()
 
 search_routes = Blueprint('search', __name__, url_prefix='/search')
 
@@ -51,7 +53,7 @@ def dunderbands():
                                     prefix, subgenre, genre, country)
             except KeyError:
                 dunderRequest    = request.form['dunderRequest']
-            dunderSearch         = string_clean(dunderRequest, 'stringNeededUpper')
+            dunderSearch         = search.string_clean(dunderRequest, 'stringNeededUpper')
             publishedBefore      = request.form['publishedBefore']
             publishedAfter       = request.form['publishedAfter']
             print('{0} | {1}'.format(publishedBefore, publishedAfter))
@@ -64,8 +66,8 @@ def dunderbands():
             db.session.commit()
             currentBand          = criteria_crunch(
                 dunderSearch     = dunderSearch,
-                publishedBefore  = publishedBefore,
-                publishedAfter   = publishedAfter,
+                published_before  = publishedBefore,
+                published_after   = publishedAfter,
                 nextToken        = nextToken,
                 dunderAnchor     = dunderAnchor)
         else:
@@ -78,8 +80,8 @@ def dunderbands():
             return render_template (
                 'search/results.html',
                  currentBand     = currentBand,
-                 publishedBefore = publishedBefore,
-                 publishedAfter  = publishedAfter,
+                 published_before = publishedBefore,
+                 published_after  = publishedAfter,
                  current_user    = current_user)
 
 

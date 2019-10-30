@@ -29,3 +29,6 @@ class Criteria:
 
     def get_view_ratio(self):
         return float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))
+
+    def is_full_album(self):
+        return redis_server.get('FULL_ALBUM').decode('utf-8')
