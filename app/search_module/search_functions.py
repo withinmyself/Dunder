@@ -8,7 +8,7 @@ from oauth2client.tools import argparser
 
 from app.search_module.models import Albums
 from app.search_module.strings import no_words, genrePrefix, \
-     genreMain, countryOfOrigin, my_exciters
+     genreMain, countryOfOrigin, yes_words
 from app.users_module.models import Favorites, Ignore, Comments
 from app.users_module.controllers import current_user
 from app.settings_module.settings_functions import Criteria
@@ -23,10 +23,10 @@ YOUTUBE = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 
 settings = Criteria()
 
-DEBUG = True
-SEE_TITLES = False
+# no_words are words associated with compilation videos, fan videos, mixtapes.
+# yes_words are words we search for in the comments of found albums.
 
-# Add words from lists to database.
+
 def word_sort():
     for word in no_words:
         new_word = Comments(word, 'noWord')
@@ -41,137 +41,116 @@ def word_sort():
 
 # Take four digit year. Return RFC3339 datetime object.
 def year_selecter(year):
-
     yearConverted = datetime.datetime(int(year),12,30).isoformat()+'Z'
     return yearConverted
 
-
-
-# Main API interaction to YouTube.
-def search_getter(q, max_results=1, token=None, location=None,
-                  location_radius=None, related_video=None,
-                  published_before=None, published_after=None):
-
-    if DEBUG == True:
-        print("SEARCH_GETTER")
+# API interaction to YouTube.
+def search_getter(
+    q, max_results=1, token=None, location=None,
+    location_radius=None, related_video=None,
+    published_before=None, published_after=None):
 
     resultsSearch = YOUTUBE.search().list(
-        q=q,
-        type="video",
-        pageToken=token,
-        order = "relevance",
-        videoDuration="long",
-        videoDefinition="high",
-        videoEmbeddable="true",
-        part="id,snippet",
-        maxResults=max_results,
-        location=location,
-        locationRadius=location_radius,
-        relatedToVideoId=related_video,
-        publishedBefore=published_before,
-        publishedAfter=published_after
-        ).execute()
+      q=q, type="video", pageToken=token,
+      order="relevance", videoDuration="long",
+      videoDefinition="high", videoEmbeddable="true",
+      part="id,snippet",  maxResults=max_results,
+      location=location, locationRadius=location_radius,
+      relatedToVideoId=related_video,
+      publishedBefore=published_before,
+      publishedAfter=published_after
+      ).execute()
 
     return resultsSearch
-
-
 
 # Pull stats to compare against.
 def stat_checker (videoId):
 
-    LIKE_RATIO = settings.get_like_ratio()
-    VIEW_RATIO = settings.get_view_ratio()
-    MAX_VIEWS  = settings.get_max_views()
+    like_ratio = settings.get_like_ratio()
+    view_ratio = settings.get_view_ratio()
+    max_views = settings.get_max_views()
 
-    if DEBUG == True:
-        print("STAT_CHECKER")
-    else:
-        pass
-
-    stats = YOUTUBE.videos().list(id=videoId, part='snippet, recordingDetails, statistics'
-                                  ).execute()
+    video_stats = YOUTUBE.videos().list(id=videoId, 
+        part='snippet, recordingDetails, statistics'
+        ).execute()
 
     try:
-        likeCount = stats['items'][0]['statistics']['likeCount']
-        dislikeCount = stats['items'][0]['statistics']['dislikeCount']
-        commentCount = stats['items'][0]['statistics']['commentCount']
-        viewCount = stats['items'][0]['statistics']['likeCount']
-        totalVotes = likeCount + dislikeCount
+        like_count = video_stats['items'][0]['statistics']['likeCount']
+        dislike_count = video_stats['items'][0]['statistics']['dislikeCount']
+        comment_count = video_stats['items'][0]['statistics']['commentCount']
+        view_count = video_stats['items'][0]['statistics']['likeCount']
+        total_count = like_count + dislike_count
     except KeyError:
-        print("KeyError")
+        print("KeyError: A stat is not accessable.")
         return False
 
     try:
-        isLiked = float(dislikeCount) / float(totalVotes) <= LIKE_RATIO
-        isViewed = float(totalVotes) / float(viewCount) >= VIEW_RATIO
-        isMax = int(viewCount) <= MAX_VIEWS
-        hasComments = int(commentCount) != 0
-        hasViews = int(viewCount) != 0
-        if isLiked and isMax and hasComments and hasViews:
-            return True
-        return False
-
+        is_liked = float(dislike_count) / float(total_count) <= like_ratio
+        is_viewed = float(total_count) / float(view_count) >= view_ratio
     except ZeroDivisionError:
-        print("ZeroDivisionError")
+        print("ZeroDivisionError: Missing a count.")
         return False
+    
+    is_max = int(view_count) <= max_views
+    has_comments = int(comment_count) != 0
+    has_views = int(view_count) != 0
 
+    if is_liked and is_max and has_comments and has_views:
+        return True
+    return False
 
-
-# Uses the videoID to retrieve top 100 comments.
-# After 'cleaning' the results, we try to find words
-# from our list of desirable descriptives.
-def comment_counter (videoId):
-
-    MIN_COUNT = settings.get_comments_needed()
-    if DEBUG == True:
-        print("COMMENT_COUNTER")
-
-    wordsFound = 0
-
-    comments = YOUTUBE.commentThreads().list (
+# We pull the first 100 comments from our criteria passed video.
+def comment_getter (videoId):
+    try:
+        comments = YOUTUBE.commentThreads().list (
                                 part="snippet",
                                 maxResults=100,
                                 videoId=videoId,
-                                textFormat="plainText"
-                                ).execute()
-
-    extra_words = db.session.query(Comments).filter_by(define='exciter').all()
-    for exciter in extra_words:
-        my_exciters.append('{0}'.format(exciter.commentWord))
-    my_best_exciters = list(set(my_exciters))
-
-    try:
-        for item in comments["items"]:
-            comment = item["snippet"]["topLevelComment"]
-            text = comment["snippet"]["textDisplay"]
-            cleanTxt = re.sub(r'[.!,;?]', ' ', text).lower()
-            for word in my_best_exciters:
-                wordsFound = wordsFound + cleanTxt.count(word)
-    except KeyError:
-        print("KeyError - Comments Are Disabled")
+                                textFormat="plainText").execute()
+    except HttpError:
+        print("Comments isabled")
         return False
 
-    if int(wordsFound) >= MIN_COUNT:
+def get_yes_words(yes_words=yes_words):
+
+    new_yes_words = db.session.query(Comments).filter_by(define='exciter').all()
+    for yes_word in new_yes_words:
+        yes_words.append('{0}'.format(yes_word.commentWord))
+    
+    all_yes_words = list(set(yes_words))
+    return all_yes_words
+
+def comment_word_counter(comments, all_yes_words):
+
+    try:
+        comments=comments
         for item in comments["items"]:
             comment = item["snippet"]["topLevelComment"]
             text = comment["snippet"]["textDisplay"]
-            cleanTxt = re.sub(r'[.!,;?]', ' ', text).lower()
-            for word in my_best_exciters:
-                if cleanTxt.count(word) > 0:
-                    if len(text) > 500:
-                        return text[:450]
-                    else:
-                        return text
-    else:
-        print('Low Count')
+    except TypeError:
+        print("Comments disabled")
+        return False
+        
+        clean_text = re.sub(r'[.!,;?]', ' ', text).lower()
+        words_found = 0
+        x = 0
+        all_yes_words=all_yes_words
+        for word in all_yes_words:
+            print('for word')
+            words_found = words_found + clean_text.count(word)
+            
+            if words_found > 0 and x != 1:
+                text = text
+                x+=1
+
+        if x > 0:
+            return text[50:]
         return False
 
 # Logic operators, error checking and YouTube search results.
 def criteria_crunch (dunderSearch, publishedBefore=None, publishedAfter=None,
                      nextToken=None, dunderAnchor=None):
 
-    if DEBUG == True:
-        print("CRITERIA_CRUNCH")
 
     redis_server.set('LOOP', 0)
     redis_server.set('WHILE', 'GO')
@@ -255,18 +234,19 @@ def criteria_crunch (dunderSearch, publishedBefore=None, publishedAfter=None,
                     print('Unit Test - Current User Is Fraudulent')
                 
                 checkStats = stat_checker(videoId=videoId)
-                try:
-                    checkComments = comment_counter(videoId=videoId) != False
-                except HttpError:
-                    print('Comments Disabled')
-                    checkComments = False
+                comments = comment_getter(videoId=videoId)
+                all_yes_words = get_yes_words()
+                check_comments = comment_word_counter(
+                    comments=comments, 
+                    all_yes_words=all_yes_words) != False
 
-                if isFavorite and doIgnore and checkStats and checkComments:
+
+                if isFavorite and doIgnore and checkStats and check_comments:
                     redis_server.set('WHILE', 'NOGO')
                     currentBand = Albums (
                       videoId=videoId, nextToken=nextToken,
                       genre=dunderSearch.upper(), videoTitle=videoTitle,
-                      topComment=comment_counter(videoId=videoId))
+                      topComment=check_comments)
 
                     db.session.add(currentBand)
                     db.session.commit()
@@ -276,9 +256,6 @@ def criteria_crunch (dunderSearch, publishedBefore=None, publishedAfter=None,
 # of words that might pull in 'mix' videos,
 # compilations and 'best of' lists.
 def title_clean (tubeTitle, includeSearch='search', includeBand='band'):
-
-    if DEBUG == True:
-        print("TITLE_CLEAN")
 
     titleList = re.sub(r'[.!,;?]', ' ', tubeTitle).lower().split()
 
@@ -303,8 +280,7 @@ def title_clean (tubeTitle, includeSearch='search', includeBand='band'):
 # upper or lower without punctuation marks
 def string_clean(dirtyText, listOrString=None):
 
-    if DEBUG == True:
-        print("STRING_CLEAN")
+
     try:
         if listOrString == 'listNeededLower':
             return re.sub(r'[.!,;?]', ' ', dirtyText).lower().split()

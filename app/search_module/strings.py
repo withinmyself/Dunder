@@ -26,7 +26,7 @@ no_words=[
 
   '#podsessions', 'podcast', 'how', 'to', 'make']
 
-my_exciters=[
+yes_words =[
 
   'amazing', 'speechless', 'fantastic',
 
