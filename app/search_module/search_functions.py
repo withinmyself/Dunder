@@ -107,9 +107,11 @@ def comment_getter (videoId):
                                 maxResults=100,
                                 videoId=videoId,
                                 textFormat="plainText").execute()
+        return comments
     except HttpError:
         print("Comments isabled")
         return False
+
 
 def get_yes_words(yes_words=yes_words):
 
@@ -122,30 +124,29 @@ def get_yes_words(yes_words=yes_words):
 
 def comment_word_counter(comments, all_yes_words):
 
-    try:
-        comments=comments
-        for item in comments["items"]:
-            comment = item["snippet"]["topLevelComment"]
-            text = comment["snippet"]["textDisplay"]
-    except TypeError:
-        print("Comments disabled")
-        return False
-        
-        clean_text = re.sub(r'[.!,;?]', ' ', text).lower()
-        words_found = 0
-        x = 0
-        all_yes_words=all_yes_words
-        for word in all_yes_words:
-            print('for word')
-            words_found = words_found + clean_text.count(word)
-            
-            if words_found > 0 and x != 1:
-                text = text
-                x+=1
 
-        if x > 0:
-            return text[50:]
-        return False
+    redis_server.set('TOTAL_WORDS', 0)
+    words_needed = settings.get_comments_needed()
+
+    for item in comments["items"]:
+        comment = item["snippet"]["topLevelComment"]
+        text = comment["snippet"]["textDisplay"]
+        
+        words_found = 0
+        clean_text = re.sub(r'[.!,;?]', ' ', text).lower()
+        
+        for word in all_yes_words:
+            words_found = words_found + clean_text.count(word)
+            if words_found > 0:
+                redis_server.set('COMMENT', text)
+                redis_server.incr('TOTAL_WORDS')
+                break
+
+    if int(str(redis_server.get('TOTAL_WORDS').decode('utf-8'))) >= words_needed:
+        saved_comment = str(redis_server.get('COMMENT').decode('utf-8'))
+        return saved_comment
+    
+    return False
 
 # Logic operators, error checking and YouTube search results.
 def criteria_crunch (dunderSearch, publishedBefore=None, publishedAfter=None,
@@ -236,21 +237,28 @@ def criteria_crunch (dunderSearch, publishedBefore=None, publishedAfter=None,
                 checkStats = stat_checker(videoId=videoId)
                 comments = comment_getter(videoId=videoId)
                 all_yes_words = get_yes_words()
-                check_comments = comment_word_counter(
-                    comments=comments, 
-                    all_yes_words=all_yes_words) != False
+                if comments != False:
+                    try:
+                        check_comments = comment_word_counter(
+                            comments=comments, 
+                            all_yes_words=all_yes_words)
+                    except KeyError:
+                        print('KeyError: Comments disabled.')
+                        check_comments = False
+                else:
+                    check_comments = False
 
+                if check_comments != False:
+                    if isFavorite and doIgnore and checkStats:
+                        redis_server.set('WHILE', 'NOGO')
+                        currentBand = Albums (
+                            videoId=videoId, nextToken=nextToken,
+                            genre=dunderSearch.upper(), videoTitle=videoTitle,
+                            topComment=check_comments)
 
-                if isFavorite and doIgnore and checkStats and check_comments:
-                    redis_server.set('WHILE', 'NOGO')
-                    currentBand = Albums (
-                      videoId=videoId, nextToken=nextToken,
-                      genre=dunderSearch.upper(), videoTitle=videoTitle,
-                      topComment=check_comments)
-
-                    db.session.add(currentBand)
-                    db.session.commit()
-                    return currentBand
+                        db.session.add(currentBand)
+                        db.session.commit()
+                        return currentBand
 
 # Takes current video title and checks against our list
 # of words that might pull in 'mix' videos,
