@@ -1,17 +1,13 @@
 import re
-import datetime
-import random
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 
 from app.search_module.models import Albums
-from app.search_module.strings import no_words, genrePrefix, \
-     genreMain, countryOfOrigin, yes_words
 from app.users_module.models import Favorites, Ignore, Comments
 from app.users_module.controllers import current_user
-from app.settings_module.settings_functions import Criteria
+from app.settings_module.redis_access import RedisAccess
 from app import db, redis_server
 
 DEVELOPER_KEY = redis_server.get('DEVELOPER_KEY').decode('utf-8')
@@ -21,20 +17,21 @@ YOUTUBE_API_VERSION = "v3"
 YOUTUBE = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
     developerKey=DEVELOPER_KEY)
 
-settings = Criteria()
+redis = RedisAccess()
+
 class Search:
 
     def __init__(self):
         pass
 
     # API interaction to YouTube.
-    def search_getter(self,
+    def _search_getter(self,
         q, max_results=1, video_duration='long', 
         token=None, location=None,
         location_radius=None, related_video=None,
         published_before=None, published_after=None):
 
-        if redis_server.get('FULL_ALBUM').decode('utf-8') == False:
+        if redis.get_video_length() == 'short':
             video_duration = 'short'
 
         results_search = YOUTUBE.search().list(
@@ -51,11 +48,11 @@ class Search:
         return results_search
 
     # Pull stats to compare against.
-    def stat_checker (self, videoId):
+    def _stat_checker (self, videoId):
 
-        like_ratio = settings.get_like_ratio()
-        view_ratio = settings.get_view_ratio()
-        max_views = settings.get_max_views()
+        like_ratio = redis.get_like_ratio()
+        view_ratio = redis.get_view_ratio()
+        max_views = redis.get_max_views()
 
         video_stats = YOUTUBE.videos().list(id=videoId, 
             part='snippet, recordingDetails, statistics'
@@ -86,7 +83,7 @@ class Search:
             return True
         return False
 
-    def preference_check(self, videoId): 
+    def _preference_check(self, videoId): 
         not_favorite = True
         dont_ignore = True
                 
@@ -103,7 +100,7 @@ class Search:
         return False
 
     # We pull the first 100 comments from our criteria passed video.
-    def comment_getter (self, videoId):
+    def _comment_getter (self, videoId):
         try:
             comments = YOUTUBE.commentThreads().list (
                                     part="snippet",
@@ -112,24 +109,13 @@ class Search:
                                     textFormat="plainText").execute()
             return comments
         except HttpError:
-            print("Comments isabled")
+            print("Comments disabled")
             return False
 
-
-    def get_yes_words(self, yes_words=yes_words):
-
-        new_yes_words = db.session.query(Comments).filter_by(define='exciter').all()
-        for yes_word in new_yes_words:
-            yes_words.append('{0}'.format(yes_word.commentWord))
-        
-        all_yes_words = list(set(yes_words))
-        return all_yes_words
-
-    def comment_word_counter(self, comments, all_yes_words):
-
+    def _comment_word_counter(self, comments, all_yes_words):
 
         redis_server.set('TOTAL_WORDS', 0)
-        words_needed = settings.get_comments_needed()
+        words_needed = redis.get_comments_needed()
 
         for item in comments["items"]:
             comment = item["snippet"]["topLevelComment"]
@@ -148,56 +134,86 @@ class Search:
         if int(str(redis_server.get('TOTAL_WORDS').decode('utf-8'))) >= words_needed:
             saved_comment = str(redis_server.get('COMMENT').decode('utf-8'))
             return saved_comment
-        
         return False
 
-
-
-        # Takes current video title and checks against our list
-    # of words that might pull in 'mix' videos,
+    # Check list of words that might pull in 'mix' videos,
     # compilations and 'best of' lists.
-    def title_clean (self, tubeTitle, include_search='search', include_band='band'):
+    def _title_clean (self, tube_title, include_search='search', include_band='band'):
 
-        title_list = re.sub(r'[.!,;?]', ' ', tubeTitle).lower().split()
+        title_list = re.sub(r'[.!,;?]', ' ', tube_title).lower().split()
 
         # This gives us the option to add extra words or band names.
-        # By default it uses the search string itself to further avoid
-        # 'lists' or 'compilations' as opposed to actual albums.
+        no_words = redis.get_no_words()
         no_words.append('{0}'.format(include_search))
         no_words.append('{0}'.format(include_band))
-        extra_no_words = db.session.query(Comments).filter_by(define='noWord').all()
-
-        for word in extra_no_words:
-            no_words.append('{0}'.format(word.commentWord))
-        best_no_words = list(set(no_words))
 
         for word in title_list:
-            for noWord in best_no_words:
-                if noWord == word:
+            for no in no_words:
+                if no == word:
                     return False
         return True
 
-    # Takes a string and returns either a list or a string
-    # upper or lower without punctuation marks
-    def string_clean(self, dirtyText, listOrString=None):
 
+    # Main search method.  Bring everything together.
+    def criteria_crunch (
+            self,
+            dunder_search=None, 
+            published_before=None, 
+            published_after=None, 
+            next_token=None, 
+            dunder_anchor=None):
 
-        try:
-            if listOrString == 'listNeededLower':
-                return re.sub(r'[.!,;?]', ' ', dirtyText).lower().split()
-            if listOrString == 'stringNeededLower':
-                return re.sub(r'[.!,;?]', ' ', dirtyText).lower()
-            if listOrString == 'listNeededUpper':
-                return re.sub(r'[.!,;?]', ' ', dirtyText).upper().split()
-            if listOrString == 'stringNeededUpper':
-                return re.sub(r'[.!,;?]', ' ', dirtyText).upper()
-            if listOrString == 'listNeeded':
-                return re.sub(r'[.!,;?]', ' ', dirtyText).split()
-            if listOrString == 'stringNeeded':
-                return re.sub(r'[.!,;?]', ' ', dirtyText)
-            if listOrString == None:
-                return 'Arguments Missing'
+        x = 0
+        cycle = redis.get_how_long()
+        while x <= cycle:
+            x += 1
+            search_results = self._search_getter (
+                            dunder_search,
+                            token=next_token,
+                            related_video=dunder_anchor,
+                            published_before=published_before,
+                            published_after=published_after)
+            print(x)
+            try:
+                next_token = search_results['nextPageToken']
+            except KeyError:
+                print("End of pages.")
+                next_token = None
 
-        except TypeError as e:
-            print('Arguments Missing: {0}'.format(e))
+            for video in search_results.get('items', []):
+                videoId = video['id']['videoId']
+                video_title = video['snippet']['title']
+                is_video = video['id']['kind'] == 'youtube#video'
+                no_words_free = self._title_clean(video_title,
+                                    include_search=dunder_search)
 
+                # Automatically add to ignore list if not correct type or 
+                # if the title contains misleading information. 
+                if no_words_free or is_video == False:
+                    if db.session.query(Ignore).filter_by(videoId=videoId).first() == None:
+                        ignore = Ignore(videoId, video_title)
+                        db.session.add(ignore)
+                        db.session.commit()
+
+                user_wants = self._preference_check(videoId)
+                stats_match = self._stat_checker(videoId=videoId)
+
+                if is_video and no_words_free and user_wants and stats_match:
+
+                    try:
+                        check_comments = self._comment_word_counter(
+                            comments=self._comment_getter(videoId=videoId), 
+                            all_yes_words=redis.get_yes_words())
+                    except TypeError:
+                        print("Comments unavailable")
+                        check_comments = False
+
+                    if check_comments != False:
+                        current_band = Albums (
+                            videoId=videoId, nextToken=next_token,
+                            genre=dunder_search.upper(), videoTitle=video_title,
+                            topComment=check_comments)
+
+                        db.session.add(current_band)
+                        db.session.commit()
+                        return current_band

@@ -1,6 +1,5 @@
 from app import db
 
-# Base model for all other database classes to inherit
 class Base(db.Model):
 
     __abstract__ = True

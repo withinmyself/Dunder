@@ -4,11 +4,11 @@ from flask import Blueprint, request, render_template, \
 from app import db, redis_server, login_manager
 from app.users_module.models import Ignore, Favorites
 from app.users_module.controllers import current_user
-from app.settings_module.settings_functions import Criteria
+from app.settings_module.redis_access import RedisAccess
 from app.search_module.models import Albums
 
 settings_routes = Blueprint('settings', __name__, url_prefix='/settings')
-stats = Criteria()
+redis = RedisAccess()
 
 @settings_routes.route('/', methods=['GET'])
 def settings():
@@ -22,10 +22,10 @@ def settings():
 def criteria():
     if current_user.is_authenticated:
         if current_user.username == str(redis_server.get('USERNAME').decode('utf-8')):
-            max_views = stats.change_max_views(request.form['views'])
-            comments = stats.change_comments_needed(request.form['comments'])
-            like_ratio = stats.change_like_ratio(request.form['likeratio'])
-            view_ratio = stats.change_view_ratio(request.form['view_ratio'])
+            max_views = redis.change_max_views(request.form['views'])
+            comments = redis.change_comments_needed(request.form['comments'])
+            like_ratio = redis.change_like_ratio(request.form['likeratio'])
+            view_ratio = redis.change_view_ratio(request.form['view_ratio'])
             if max_views and comments and like_ratio and view_ratio:
                 flash("Changes made succesfully.")
                 return redirect('/')
