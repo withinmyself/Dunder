@@ -35,7 +35,9 @@ login_manager.login_view = 'users.login'
 from app.search_module.controllers import search_routes as search_bp
 from app.settings_module.controllers import settings_routes as settings_bp
 from app.users_module.controllers import users_routes as users_bp
+from app.api_module.controllers import api_routes as api_bp
 # Register blueprint(s)
+app.register_blueprint(api_bp)
 app.register_blueprint(search_bp)
 app.register_blueprint(settings_bp)
 app.register_blueprint(users_bp)

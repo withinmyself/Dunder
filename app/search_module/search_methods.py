@@ -213,6 +213,9 @@ class Search:
                             videoId=videoId, nextToken=next_token,
                             genre=dunder_search.upper(), videoTitle=video_title,
                             topComment=check_comments)
+                        
+                        redis.change_token(next_token)
+                        redis.change_videoId(videoId)
 
                         db.session.add(current_band)
                         db.session.commit()

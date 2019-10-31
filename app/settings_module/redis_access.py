@@ -1,7 +1,5 @@
 from app import redis_server
 
-
-
 class RedisAccess():
     """Access lists, keys and passwords through Redis."""
 
@@ -85,3 +83,10 @@ class RedisAccess():
 
     def get_video_length(self):
         return str(redis_server.get('VIDEO_LENGTH').decode('utf-8'))
+
+    def change_token(self, token):
+        redis_server.set('PAGE_TOKEN', token)
+        return True
+
+    def get_token(self):
+        return str(redis_server.get('PAGE_TOKEN').decode('utf-8')) 
