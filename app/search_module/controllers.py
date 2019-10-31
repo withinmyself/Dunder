@@ -1,7 +1,8 @@
 import datetime
 
 from flask import Blueprint, request, render_template, \
-                  flash, g, session, redirect, url_for
+                  flash, g, session, redirect, url_for, \
+                  jsonify
 from flask_login import login_required
 
 from app.users_module.controllers import current_user
@@ -84,3 +85,28 @@ def index():
                  published_before = publishedBefore,
                  published_after  = publishedAfter,
                  current_user    = current_user)
+
+@search_routes.route('/look', methods=['GET'])
+def look():
+
+    dunder_search = 'METAL DOOM'
+
+    next_token = None
+    dunder_anchor = None
+
+    published_before = datetime.datetime(2018,12,30).isoformat()+'Z'
+    published_after = datetime.datetime(2018,12,30).isoformat()+'Z'
+
+    current_band = criteria_crunch(
+      dunder_search = dunder_search,
+      published_before = published_before,
+      published_after = published_after,
+      next_token = next_token,
+      dunder_anchor = dunder_anchor)
+
+    package = [
+      {'videoId': current_band.videoId}
+    ]
+
+    return jsonify(package)
+
