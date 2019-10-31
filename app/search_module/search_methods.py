@@ -29,7 +29,7 @@ class Search:
 
     # API interaction to YouTube.
     def search_getter(self,
-        q, max_results=50, video_duration='long', 
+        q, max_results=1, video_duration='long', 
         token=None, location=None,
         location_radius=None, related_video=None,
         published_before=None, published_after=None):
@@ -200,6 +200,4 @@ class Search:
 
         except TypeError as e:
             print('Arguments Missing: {0}'.format(e))
-
-
 

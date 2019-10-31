@@ -15,14 +15,14 @@
 <div class="dunder-grid"><div class="grid-item dunder-1"></div>
 
   <!-- DunderBands Image -->
-  <div class="grid-item dunder-2"><a href="{{ url_for( 'search.dunderbands')}}">
+  <div class="grid-item dunder-2"><a href="{{ url_for( 'search.index')}}">
   <img src="{{ url_for('static', filename = 'img/dunder_trans.png') }}"></a></div>
   <div class="grid-item dunder-3"></div>
   <div class="grid-item dunder-3"></div>
 
   <!-- Start of form -->
   <div class="grid-item dunder-4">
-    <form action="{{ url_for('search.dunderbands') }}" method="POST">
+    <form action="{{ url_for('search.index') }}" method="POST">
 
     <select name="prefix"
       id="prefix" style ="background: darkslategrey; color: whitesmoke; float:left;">

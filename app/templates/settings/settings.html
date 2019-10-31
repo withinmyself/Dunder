@@ -12,8 +12,8 @@
                                   Higher numbers increase quantity/popularity</p></div>
 
   <div class="item"><p>Comments</p></div>
-  <div class="item"><input type="float" placeholder="{{ redis_server.get('MIN_COUNT').decode('utf-8')|int|string }}" name="comments"
-               size="4" style="height: 30px"  value="{{ redis_server.get('MIN_COUNT').decode('utf-8') }}"></div>
+  <div class="item"><input type="float" placeholder="{{ redis_server.get('COMMENTS_REQUESTED').decode('utf-8')|int|string }}" name="comments"
+               size="4" style="height: 30px"  value="{{ redis_server.get('COMMENTS_REQUESTED').decode('utf-8') }}"></div>
   <div class="item"><input type="submit" value="Commit Changes" style="height: 30px" value="count"></div>
   <div class="item item-like"><p>0-5 |  Number of exciter words required in the top 100 comments |
                                         2-3 is recommended</p></div>

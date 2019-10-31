@@ -33,36 +33,39 @@ def criteria_crunch (
         next_token=None, 
         dunder_anchor=None):
 
-    search_results = search.search_getter (
-                    dunder_search,
-                    token=next_token,
-                    related_video=dunder_anchor,
-                    published_before=published_before,
-                    published_after=published_after)
+
     x = 0
-    redis_server.set('NEXT_TOKEN', search_results['nextPageToken'])
-    for video in search_results.get('items', []):
+    while x <= 100:
         x += 1
+        next_token = str(redis_server.get('NEXT_TOKEN').decode('utf-8'))
+        search_results = search.search_getter (
+                        dunder_search,
+                        token=next_token,
+                        related_video=dunder_anchor,
+                        published_before=published_before,
+                        published_after=published_after)
         print(x)
-        videoId = video['id']['videoId']
-        video_title = video['snippet']['title']
-        is_video = video['id']['kind'] == 'youtube#video'
-        no_words_free = search.title_clean(video_title,
-                              include_search=dunder_search)
-        user_wants = search.preference_check(videoId)
-        stats_match = search.stat_checker(videoId=videoId)
+        redis_server.set('NEXT_TOKEN', search_results['nextPageToken'])
+        for video in search_results.get('items', []):
+            videoId = video['id']['videoId']
+            video_title = video['snippet']['title']
+            is_video = video['id']['kind'] == 'youtube#video'
+            no_words_free = search.title_clean(video_title,
+                                include_search=dunder_search)
+            user_wants = search.preference_check(videoId)
+            stats_match = search.stat_checker(videoId=videoId)
 
-        if is_video and no_words_free and user_wants and stats_match:
-            check_comments = search.comment_word_counter(
-                comments=search.comment_getter(videoId=videoId), 
-                all_yes_words=search.get_yes_words())
+            if is_video and no_words_free and user_wants and stats_match:
+                check_comments = search.comment_word_counter(
+                    comments=search.comment_getter(videoId=videoId), 
+                    all_yes_words=search.get_yes_words())
 
-            if check_comments != False:
-                current_band = Albums (
-                    videoId=videoId, nextToken=next_token,
-                    genre=dunder_search.upper(), videoTitle=video_title,
-                    topComment=check_comments)
+                if check_comments != False:
+                    current_band = Albums (
+                        videoId=videoId, nextToken=next_token,
+                        genre=dunder_search.upper(), videoTitle=video_title,
+                        topComment=check_comments)
 
-                db.session.add(current_band)
-                db.session.commit()
-                return current_band
+                    db.session.add(current_band)
+                    db.session.commit()
+                    return current_band

@@ -8,7 +8,7 @@ from app.settings_module.settings_functions import Criteria
 from app.search_module.models import Albums
 
 settings_routes = Blueprint('settings', __name__, url_prefix='/settings')
-settings = Criteria()
+stats = Criteria()
 
 @settings_routes.route('/', methods=['GET'])
 def settings():
@@ -22,11 +22,16 @@ def settings():
 def criteria():
     if current_user.is_authenticated:
         if current_user.username == str(redis_server.get('USERNAME').decode('utf-8')):
-            settings.change_max_views(request.form['views'])
-            settings.change_comments_needed(request.form['comments'])
-            settings.change_like_ratio(request.form['likeratio'])
-            settings.change_view_ratio(request.form['view_ratio'])
-            return redirect('search/dunderbands')
+            max_views = stats.change_max_views(request.form['views'])
+            comments = stats.change_comments_needed(request.form['comments'])
+            like_ratio = stats.change_like_ratio(request.form['likeratio'])
+            view_ratio = stats.change_view_ratio(request.form['view_ratio'])
+            if max_views and comments and like_ratio and view_ratio:
+                flash("Changes made succesfully.")
+                return redirect('/')
+            else:
+                flash("One or more changes did not happen.")
+                return redirect('/')
         else:
             flash("Admin Access Only")
             return redirect('users/login')
@@ -105,7 +110,7 @@ def make_ignore():
                 for ignore in current_user.ignore:
                     if ignore.videoId == videoId:
                         flash('Video Already Being Ignored')
-                        return redirect('search/dunderbands')
+                        return redirect('/')
 
             ignore = db.session.query(Ignore).filter_by(videoId=videoId).first()
             current_user.ignore.append(ignore)
@@ -118,10 +123,10 @@ def make_ignore():
             if nore.videoId == videoId:
                 current_user.ignore.remove(nore)
                 db.session.commit()
-                return redirect('search/dunderbands')
+                return redirect('/')
         flash('Video Already Deleted From Ignore List')
 
-    return redirect('search/dunderbands')
+    return redirect('/')
 
 @settings_routes.route('/about/', methods=['GET', 'POST'])
 def about():
@@ -149,5 +154,6 @@ def favorites():
             first_video   = first_video,
             first_comment = first_comment,
             current_user  = current_user)
+
     flash("You Need To Login First")
     return redirect('users/login')

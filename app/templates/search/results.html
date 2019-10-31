@@ -53,7 +53,7 @@
   </form>
 
   <!-- Keep searching with the same search string but moving to the next token -->
-  <form action="{{ url_for('search.dunderbands') }}" method="POST">
+  <form action="{{ url_for('search.index') }}" method="POST">
     <input type="hidden" name="dunderRequest" value="{{ currentBand.genre }}"/>
     <input type="hidden" name="nextToken" value="{{ currentBand.nextToken }}" />
     <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('2018') }}"/>
@@ -68,7 +68,7 @@
   </form>
 
 <!-- Return home for a new search -->
-  <form action="{{ url_for('search.dunderbands') }}" method="GET">
+  <form action="{{ url_for('search.index') }}" method="GET">
     <div class="home"><input type="submit" id="returnhome" value="Return Home And Search Again"
       style="color:whitesmoke;background-color: darkslategrey"
       onmouseover="document.getElementById('returnhome').style.background='black';
@@ -78,7 +78,7 @@
   </form>
 
 <!-- Anchor Pivot takes the VideoID and uses it as the main search point -->
-  <form action="{{ url_for('search.dunderbands') }}" method="POST">
+  <form action="{{ url_for('search.index') }}" method="POST">
     <input type="hidden" name="videoId" value="{{ currentBand.videoId }}"/>
     <input type="hidden" name="dunderRequest" value="{{ currentBand.genre }}" />
     <input type="hidden" name="publishedBefore" value="{{ publishedBefore | default ('2018') }}"/>

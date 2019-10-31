@@ -8,24 +8,28 @@ class Criteria:
 
     def change_like_ratio(self, ratio):
         redis_server.set('LIKE_RATIO', ratio)
+        return True
 
     def get_like_ratio(self):
         return float(str(redis_server.get('LIKE_RATIO').decode('utf-8')))
 
     def change_comments_needed(self, amount):
         redis_server.set('COMMENTS_REQUESTED', amount)
+        return True
 
     def get_comments_needed(self):
         return int(str(redis_server.get('COMMENTS_REQUESTED').decode('utf-8')))
 
     def change_max_views(self, amount):
         redis_server.set('MAX_VIEWS', amount)
+        return True
 
     def get_max_views(self):
         return int(str(redis_server.get('MAX_VIEWS').decode('utf-8')))
 
     def change_view_ratio(self, amount):
         redis_server.set('VIEW_RATIO', amount)
+        return True
 
     def get_view_ratio(self):
         return float(str(redis_server.get('VIEW_RATIO').decode('utf-8')))

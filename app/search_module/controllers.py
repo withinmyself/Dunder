@@ -14,24 +14,22 @@ from app.search_module.search_methods import Search
 
 search = Search()
 
-search_routes = Blueprint('search', __name__, url_prefix='/search')
+search_routes = Blueprint('search', __name__, url_prefix='/')
 
 # Routes for our search engine
 
 # Main search page
-@search_routes.route('/', methods=['GET'])
+#@search_routes.route('/', methods=['GET'])
+#def index():
+#   return render_template('search/dunderbands.html',
+#                            current_user=current_user)
+
+
+
+@search_routes.route('/', methods=['GET', 'POST'])
 def index():
-   return redirect('search/dunderbands')
-
-
-@search_routes.route('/dunderbands', methods=['GET', 'POST'])
-def dunderbands():
     if request.method == 'GET':
-        db.session.query(Albums).delete()
-        db.session.query(Favorites).filter_by(videoTitle='Not Given').delete()
-        db.session.commit()
         if current_user.is_authenticated:
-            redis_server.set('AROUND', 0)
             return render_template('search/dunderbands.html',
                                    current_user=current_user)
         else:
@@ -78,7 +76,7 @@ def dunderbands():
             flash("You Need To Login First - Click Signup If You Don't Have A Username Yet")
         if currentBand == None or currentBand == False:
             flash('Search String Exausted | Double Your Efforts')
-            return redirect('search/dunderbands')
+            return redirect('/')
         else:
             return render_template (
                 'search/results.html',
@@ -86,6 +84,3 @@ def dunderbands():
                  published_before = publishedBefore,
                  published_after  = publishedAfter,
                  current_user    = current_user)
-
-
-
