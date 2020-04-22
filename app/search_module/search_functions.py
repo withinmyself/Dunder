@@ -14,7 +14,7 @@ from app.users_module.controllers import current_user
 from app.settings_module.settings_functions import Criteria
 from app import db, redis_server
 
-DEVELOPER_KEY = redis_server.get('DEVELOPER_KEY').decode('utf-8')
+DEVELOPER_KEY = 'AIzaSyBQEcuLzY9DirijZ_Vx9QCKMstDvl8Zi6Y' # redis_server.get('DEVELOPER_KEY').decode('utf-8')
 
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"

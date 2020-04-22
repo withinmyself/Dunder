@@ -13,8 +13,8 @@ DEBUG = True
 
 redis_server = redis.Redis(host='127.0.0.1', port='6379')
 
-SECRET_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
-CSRF_SESSION_KEY = redis_server.get('SECRET_KEY').decode('utf-8')
+SECRET_KEY = 'LOCAL' # redis_server.get('SECRET_KEY').decode('utf-8')
+CSRF_SESSION_KEY = 'LOCAL' # redis_server.get('SECRET_KEY').decode('utf-8')
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(TEST_DB) # redis_server.get('SQL_DATABASE').decode('utf-8')
 SQLALCHEMY_TRACK_MODIFICATIONS = False
