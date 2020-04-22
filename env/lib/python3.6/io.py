@@ -1,1 +1,1 @@
-/usr/lib/python3.6/io.py
+/mnt/l/usr/lib/python3.6/io.py

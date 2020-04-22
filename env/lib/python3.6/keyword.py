@@ -1,1 +1,1 @@
-/usr/lib/python3.6/keyword.py
+/mnt/l/usr/lib/python3.6/keyword.py

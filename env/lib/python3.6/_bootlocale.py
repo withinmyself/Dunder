@@ -1,1 +1,1 @@
-/usr/lib/python3.6/_bootlocale.py
+/mnt/l/usr/lib/python3.6/_bootlocale.py

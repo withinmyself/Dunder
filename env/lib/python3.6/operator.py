@@ -1,1 +1,1 @@
-/usr/lib/python3.6/operator.py
+/mnt/l/usr/lib/python3.6/operator.py

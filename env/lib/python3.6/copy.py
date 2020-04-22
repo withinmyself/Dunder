@@ -1,1 +1,1 @@
-/usr/lib/python3.6/copy.py
+/mnt/l/usr/lib/python3.6/copy.py

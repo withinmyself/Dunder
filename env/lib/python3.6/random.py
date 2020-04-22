@@ -1,1 +1,1 @@
-/usr/lib/python3.6/random.py
+/mnt/l/usr/lib/python3.6/random.py
