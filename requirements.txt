@@ -26,7 +26,7 @@ Flask-WTF==0.14.2
 future==0.17.1
 google-api-python-client==1.6.5
 gunicorn==19.7.1
-httplib2==0.10.3
+httplib2==0.18.0
 idna==2.6
 itsdangerous==0.24
 Jinja2==2.10
