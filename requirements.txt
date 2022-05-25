@@ -46,7 +46,7 @@ pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pycparser==2.19
 PyInstaller==3.3.1
-PyJWT==1.6.1
+PyJWT==2.4.0
 pytest==4.0.2
 pytz==2018.3
 redis==2.10.6
